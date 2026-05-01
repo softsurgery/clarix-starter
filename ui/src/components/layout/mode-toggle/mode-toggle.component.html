@@ -1,0 +1,26 @@
+<button hlmBtn variant="ghost" size="icon" [hlmDropdownMenuTrigger]="menu">
+  @if ((layoutService.theme | async) === 'light') {
+  <lucide-icon [img]="Sun" class="size-5"></lucide-icon>
+  } @else if ((layoutService.theme | async) === 'dark') {
+  <lucide-icon [img]="Moon" class="size-5"></lucide-icon>
+  } @else {
+  <lucide-icon [img]="Monitor" class="size-5"></lucide-icon>
+  }
+</button>
+
+<ng-template #menu>
+  <hlm-dropdown-menu class="w-36">
+    <button hlmDropdownMenuItem (click)="layoutService.setTheme('light')">
+      <lucide-icon [img]="Sun" class="mr-2 size-4"></lucide-icon>
+      <span>Light</span>
+    </button>
+    <button hlmDropdownMenuItem (click)="layoutService.setTheme('dark')">
+      <lucide-icon [img]="Moon" class="mr-2 size-4"></lucide-icon>
+      <span>Dark</span>
+    </button>
+    <button hlmDropdownMenuItem (click)="layoutService.setTheme('system')">
+      <lucide-icon [img]="Monitor" class="mr-2 size-4"></lucide-icon>
+      <span>System</span>
+    </button>
+  </hlm-dropdown-menu>
+</ng-template>
