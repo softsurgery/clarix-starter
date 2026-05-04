@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+# Virtual environment
+venv/
+env/
+*.log
+
+# Static and media files
+staticfiles/
+media/
+
+# VS Code / JetBrains / IDE settings
+.vscode/
+.idea/
+
+# Python environment
+*.env
+.env
+.h5
+
+#data files
+*.csv
+*.json
+*.xml
+*.sql
+*.dump
+#LOCAL Readme.md's
+DEPLOYMENT_GUIDE.md
+MATRICE_FLUX_TELEGRAM.md
+README_MACOS.md
