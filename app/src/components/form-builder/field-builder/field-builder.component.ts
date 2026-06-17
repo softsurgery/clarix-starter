@@ -11,13 +11,17 @@ import {
   Output,
   EventEmitter,
   OnInit,
+  signal,
+  OnDestroy,
 } from '@angular/core';
 import { DynamicField, SearchableSelectOption, SelectOption } from '../form-builder.types';
 import { isObservable, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { PasswordInputComponent } from '../password-input/password-input.component';
 
 @Component({
   selector: 'app-field-builder',
@@ -29,10 +33,12 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
     HlmInputImports,
     HlmSwitch,
     HlmTextareaImports,
+    PasswordInputComponent,
+    BrnSelectImports,
     HlmSelectImports,
   ],
 })
-export class FieldBuilderComponent implements OnInit, AfterViewInit {
+export class FieldBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() field!: DynamicField<any>;
   @Output() fieldBlur = new EventEmitter<void>();
   injector = inject(Injector);
@@ -45,10 +51,16 @@ export class FieldBuilderComponent implements OnInit, AfterViewInit {
   })
   viewContainerRef!: ViewContainerRef;
 
-  options$: Observable<SelectOption[]> = of([]);
+  options$ = of<SelectOption[]>([]);
+  options = signal<SelectOption[]>([]);
 
   private destroy$ = new Subject<void>();
   private hasSearchable = false;
+
+  itemToString = (value: any): string => {
+    const option = this.options().find((opt) => opt.code === value);
+    return option?.name ?? value?.toString() ?? '';
+  };
 
   ngOnInit() {
     if (!this.field) return;
@@ -68,7 +80,16 @@ export class FieldBuilderComponent implements OnInit, AfterViewInit {
       ),
     );
 
+    this.options$.pipe(takeUntil(this.destroy$)).subscribe((options) => {
+      this.options.set(options);
+    });
+
     this.initSearchableDetection();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -137,6 +158,12 @@ export class FieldBuilderComponent implements OnInit, AfterViewInit {
     }
   }
 
+  onStringInputChange(value: string) {
+    if (this.field.props && typeof this.field.props['onChange'] === 'function') {
+      this.field.props['onChange'](value);
+    }
+  }
+
   onBlur() {
     if (this.field.props && typeof this.field.props['onBlur'] === 'function') {
       this.field.props['onBlur']();
@@ -158,7 +185,5 @@ export class FieldBuilderComponent implements OnInit, AfterViewInit {
     if (this.field.props && typeof this.field.props['onSelectChange'] === 'function') {
       this.field.props['onSelectChange'](selected);
     }
-
-    this.onBlur();
   }
 }
