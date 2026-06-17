@@ -1,0 +1,9 @@
+@if (isAuthenticated()) {
+  <app-layout>
+    <router-outlet />
+    <hlm-toaster />
+  </app-layout>
+} @else {
+  <router-outlet />
+  <hlm-toaster />
+}

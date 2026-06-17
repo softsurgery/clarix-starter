@@ -1,0 +1,90 @@
+<div class="flex flex-col justify-between gap-4 py-4 sm:flex-row sm:items-center">
+  <input
+    hlmInput
+    class="w-full md:w-80"
+    placeholder="Filter {{ dataTableObject?.singular }}..."
+    (input)="_filterChange($event)"
+  />
+
+  <div class="flex items-center gap-2">
+    <button hlmBtn variant="outline" align="end" [hlmDropdownMenuTrigger]="menu">
+      Columns
+      <ng-icon hlm name="lucideChevronDown" class="ml-2" size="sm" />
+    </button>
+    @if (dataTableObject?.createAction && !dataTableObject?.createAction?.isHidden) {
+      <button
+        hlmBtn
+        size="sm"
+        (click)="dataTableObject?.createAction?.action?.()"
+        [disabled]="dataTableObject?.createAction?.disabled ?? false"
+      >
+        <ng-icon hlm name="lucidePlus" class="mr-2" size="sm" />
+        {{ dataTableObject?.createAction?.label }}
+      </button>
+    }
+  </div>
+  <ng-template #menu>
+    <hlm-dropdown-menu class="w-32">
+      @for (column of _hidableColumns; track column.id) {
+        <button
+          hlmDropdownMenuCheckbox
+          class="capitalize"
+          [checked]="column.getIsVisible()"
+          (triggered)="column.toggleVisibility()"
+        >
+          <hlm-dropdown-menu-checkbox-indicator />
+          {{ column.columnDef.id }}
+        </button>
+      }
+    </hlm-dropdown-menu>
+  </ng-template>
+</div>
+
+<div class="rounded-md border">
+  @defer {
+    <div hlmTableContainer class="max-h-[70vh] overflow-y-auto">
+      <table hlmTable>
+        <thead hlmTHead class="sticky top-0 z-10 bg-card">
+          @for (headerGroup of _table.getHeaderGroups(); track headerGroup.id) {
+            <tr hlmTr>
+              @for (header of headerGroup.headers; track header.id) {
+                <th hlmTh [attr.colSpan]="header.colSpan">
+                  @if (!header.isPlaceholder) {
+                    <ng-container
+                      *flexRender="
+                        header.column.columnDef.header;
+                        props: header.getContext();
+                        let headerText
+                      "
+                    >
+                      <div [innerHTML]="headerText" class="font-bold"></div>
+                    </ng-container>
+                  }
+                </th>
+              }
+            </tr>
+          }
+        </thead>
+        <tbody hlmTBody>
+          @for (row of _table.getRowModel().rows; track row.id) {
+            <tr hlmTr [attr.key]="row.id" [attr.data-state]="row.getIsSelected() && 'selected'">
+              @for (cell of row.getVisibleCells(); track $index) {
+                <td hlmTd>
+                  <ng-container
+                    *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cell"
+                  >
+                    <div [innerHTML]="cell"></div>
+                  </ng-container>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr hlmTr>
+              <td hlmTd class="h-24 text-center" [attr.colspan]="_columns.length">No results.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

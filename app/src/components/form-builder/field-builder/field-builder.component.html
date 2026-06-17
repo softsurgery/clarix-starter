@@ -1,0 +1,42 @@
+<div [ngSwitch]="field.variant">
+  <!-- Text Input -->
+  <input *ngSwitchCase="'text'" hlmInput [value]="field.props?.['value'] | async"
+    [placeholder]="field.props?.['placeholder']" (input)="onInputChange($event)" (blur)="onBlur()" />
+
+  <!-- Textarea Input -->
+  <textarea *ngSwitchCase="'textarea'" hlmTextarea [value]="field.props?.['value'] | async"
+    [placeholder]="field.props?.['placeholder']" [class.resize-none]="field.props?.['resize'] === 'none'"
+    [rows]="field.props?.['rows']" [cols]="field.props?.['cols']"
+    [style.min-height.px]="(field.props?.['rows'] || 3) * 24" (input)="onInputChange($event)"
+    (blur)="onBlur()"></textarea>
+
+  <!-- Select Input -->
+  <hlm-select *ngSwitchCase="'select'"
+    (valueChange)="onSelectChange($any($event))" [value]="field.props?.['value'] | async">
+    <hlm-select-trigger class="w-full">
+      <hlm-select-value [placeholder]="field.props?.['placeholder']" />
+    </hlm-select-trigger>
+    <hlm-select-content class="w-full">
+      <hlm-select-item *ngFor="let opt of options$ | async" [value]="opt.code">
+        {{ opt.name }}
+      </hlm-select-item>
+    </hlm-select-content>
+  </hlm-select>
+
+  <!-- Switch Input -->
+  <hlm-switch *ngSwitchCase="'switch'" [checked]="!!(field.props?.['checked'] | async)"
+    (checkedChange)="onSwitchChange($event)"></hlm-switch>
+
+  <!-- Custom Input -->
+  <ng-container *ngSwitchCase="'custom'">
+    <ng-template #customComponentContainer></ng-template>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'empty'"></ng-container>
+
+  <!-- Default -->
+  <p *ngSwitchDefault class="text-red-500 font-bold">Default (Not supported)</p>
+</div>
+<div *ngIf="field.error | async as error" class="text-red-500 text-xs mt-1">
+  <div *ngFor="let err of normalizeError(error)">{{ err }}</div>
+</div>

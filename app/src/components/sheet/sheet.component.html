@@ -1,0 +1,24 @@
+<hlm-sheet-content sheetContentBridge [showCloseButton]="true" [style.max-width]="context.width">
+    <hlm-sheet-header>
+        <h3 hlmSheetTitle>{{ context.title }}</h3>
+        <p hlmSheetDescription>{{ context.description }}</p>
+    </hlm-sheet-header>
+
+    @if (context.component) {
+    <div class="flex-1 overflow-y-auto px-4">
+        <ng-container [ngComponentOutlet]="context.component.outlet"
+            [ngComponentOutletInputs]="context.component.props" />
+    </div>
+    }
+
+    @if (actions.length > 0) {
+    <hlm-sheet-footer class="flex flex-row justify-end">
+        @for (action of actions; track action.label) {
+        <button hlmBtn [variant]="action.variant ?? 'default'" [disabled]="isDisabled(action)"
+            (click)="onActionClick(action)">
+            {{ action.label }}
+        </button>
+        }
+    </hlm-sheet-footer>
+    }
+</hlm-sheet-content>

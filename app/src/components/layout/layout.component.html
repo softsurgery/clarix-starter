@@ -1,0 +1,22 @@
+<app-sidebar>
+  <app-site-header header />
+  <main hlmSidebarInset class="flex flex-col flex-1 overflow-hidden">
+    @if (layoutService.intro.title) {
+      <div class="px-4 pt-4">
+        <h1 class="text-2xl font-bold">{{ layoutService.intro.title }}</h1>
+        <p class="text-sm text-muted-foreground">{{ layoutService.intro.description }}</p>
+        <hlm-separator />
+      </div>
+    }
+    <div class="flex flex-col flex-1 px-4 pb-4 overflow-hidden">
+      <ng-content />
+      @if (layoutService.injectableFooter | async; as footer) {
+        @if (footer.component) {
+          <footer class="px-2 absolute bottom-0 left-0 right-0">
+            <ng-container *ngComponentOutlet="footer.component; inputs: footer.inputs" />
+          </footer>
+        }
+      }
+    </div>
+  </main>
+</app-sidebar>

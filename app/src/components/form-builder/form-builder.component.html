@@ -1,0 +1,84 @@
+<div [ngClass]="[structure.class || '']">
+  <div *ngIf="!structure.isHeaderHidden" [class]="['flex flex-col w-full p-2']">
+    <!-- Header -->
+    <div class="space-y-1 py-5 sm:py-0">
+      <h1 class="text-2xl font-bold tracking-tight md:text-3xl">
+        {{ structure.title }}
+      </h1>
+      <p class="text-md text-muted-color">
+        {{ structure.description || "" }}
+      </p>
+    </div>
+    <hr class="mt-4 mb-4 lg:mb-6" />
+  </div>
+
+  <div [ngClass]="[
+      'flex gap-4 xl:gap-10',
+      structure.orientation === 'vertical'
+        ? 'flex-col xl:flex-row'
+        : 'flex-col'
+    ]">
+    <div *ngFor="let grid of structure.grids" [ngClass]="[
+        'flex w-full',
+        structure.orientation === 'vertical'
+          ? 'flex-row xl:flex-col gap-10'
+          : 'flex-col gap-4'
+      ]">
+      <div *ngIf="!grid.isHeaderHidden" class="flex flex-col w-full p-2">
+        <!-- Grid Header -->
+        <div class="space-y-1 py-2 border-b">
+          <h2 class="text-2xl font-bold tracking-tight md:text-3xl">
+            {{ grid.title }}
+          </h2>
+          <p *ngIf="grid.description" class="text-md text-muted-color">
+            {{ grid.description }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <!-- Filtered Grid Items -->
+        <ng-container *ngIf="filterVisibleRows(grid.gridItems) | async as visibleRows">
+          <div *ngFor="let item of visibleRows">
+            <div [ngClass]="[
+                'grid gap-6 w-full mb-5',
+                item.class || '',
+                structure.orientation === 'vertical' ||
+                item.fields.length === 1
+                  ? 'grid-cols-1'
+                  : item.fields.length === 2
+                  ? 'grid-cols-1 lg:grid-cols-2'
+                  : item.fields.length === 3
+                  ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
+                  : item.fields.length === 4
+                  ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+                  : ''
+              ]">
+              <!-- Field -->
+              <ng-container *ngFor="let field of item.fields">
+                <div [ngClass]="[
+                    'flex',
+                    'flex-col',
+                    'gap-2',
+                    'w-full',
+                    field.class || ''
+                  ]" *ngIf="(isHidden(field) | async) === false">
+                  <label for="input-{{ field.label }}" class="block text-sm font-bold">
+                    {{ field.label || "" }}
+                    <span *ngIf="field.isRequired" class="text-red-500">*</span>
+                  </label>
+                  <app-field-builder [field]="field"></app-field-builder>
+                  <div class="flex justify-between gap-2">
+                    <p class="text-xs opacity-70">
+                      {{ field.description || "" }}
+                    </p>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
