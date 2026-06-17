@@ -114,6 +114,22 @@ export interface RoleAPI {
   delete(id: string): Promise<ResponseRoleDto>;
 }
 
+export interface PyAPI {
+  sayHello(): Promise<{ message: string; output?: string; error?: string }>;
+}
+
+export interface AgentAPI {
+  generate(prompt: string): Promise<{ response: string }>;
+  chat(dto: any): Promise<{ message: any }>;
+  streamChat(
+    dto: any,
+    onToken: (token: string, done: boolean) => void,
+    onError: (err: string) => void
+  ): void;
+  health(): Promise<{ available: boolean }>;
+  models(): Promise<{ models: string[] }>;
+}
+
 export interface ElectronAPI {
   /** Returns the OS platform (e.g., 'linux', 'win32', 'darwin') */
   getPlatform(): string;
@@ -143,6 +159,10 @@ export interface ElectronAPI {
   user: UserAPI;
   /** Role CRUD operations */
   role: RoleAPI;
+  /** Python runner */
+  py: PyAPI;
+  /** Agent interactions */
+  agent: AgentAPI;
 }
 
 declare global {

@@ -47,4 +47,30 @@ contextBridge.exposeInMainWorld('electronAPI', {
     update: (id: string, data: any) => ipcRenderer.invoke('role:update', id, data),
     delete: (id: string) => ipcRenderer.invoke('role:delete', id),
   },
+  // ── Py ────────────────────────────────────────────────
+  py: {
+    sayHello: () => ipcRenderer.invoke('py:hello-cardinal'),
+  },
+  // ── Agent ─────────────────────────────────────────────
+  agent: {
+    generate: (prompt: string) => ipcRenderer.invoke('agent:generate', prompt),
+    chat: (dto: any) => ipcRenderer.invoke('agent:chat', dto),
+    streamChat: (dto: any, onToken: (token: string, done: boolean) => void, onError: (err: string) => void) => {
+      ipcRenderer.send('agent:chat-stream', dto);
+      const listener = (_event: any, data: any) => {
+        if (data.error) {
+          onError(data.error);
+          ipcRenderer.removeListener('agent:chat-stream-token', listener);
+        } else {
+          onToken(data.token, data.done);
+          if (data.done) {
+            ipcRenderer.removeListener('agent:chat-stream-token', listener);
+          }
+        }
+      };
+      ipcRenderer.on('agent:chat-stream-token', listener);
+    },
+    health: () => ipcRenderer.invoke('agent:health'),
+    models: () => ipcRenderer.invoke('agent:models'),
+  },
 });

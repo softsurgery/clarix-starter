@@ -19,6 +19,19 @@ export const data = {
       ],
     },
     {
+      title: 'AI Testing',
+      url: '/agent',
+      icon: 'lucideBot',
+      items: [
+        {
+          title: 'Agent Test',
+          url: '/agent',
+          icon: 'lucideBot',
+        }
+      ]
+    },
+
+    {
       title: 'User Management',
       url: '/user-management',
       icon: 'lucideUsers',

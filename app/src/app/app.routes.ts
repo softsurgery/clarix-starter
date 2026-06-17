@@ -3,7 +3,9 @@ import { HomeComponent } from '../pages/home/home.component';
 import { LoginComponent } from '@/pages/auth/login.component';
 import { UserComponent } from '@/pages/user/user.component';
 import { RoleComponent } from '@/pages/role/role.component';
+import { AgentComponent } from '@/pages/agent/agent.component';
 import { authGuard } from '@/guards/auth.guard';
+
 
 export const routes: Routes = [
   {
@@ -23,6 +25,11 @@ export const routes: Routes = [
   {
     path: 'roles',
     component: RoleComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'agent',
+    component: AgentComponent,
     canActivate: [authGuard],
   },
   {
