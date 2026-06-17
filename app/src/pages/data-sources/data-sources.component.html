@@ -1,0 +1,201 @@
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight">Data Sources</h1>
+    <p class="text-sm text-muted-foreground mt-1">
+      Manage your database connections and credentials.
+    </p>
+  </div>
+  <button hlmBtn size="sm" (click)="openCreateSheet()">
+    <ng-icon name="lucidePlus" class="mr-2" hlmIcon size="sm" />
+    New Connection
+  </button>
+</div>
+
+<!-- Empty State -->
+@if (dataSources().length === 0 && !loading()) {
+  <div class="flex flex-col items-center justify-center py-24 text-center">
+    <div class="rounded-full bg-muted p-6 mb-6">
+      <ng-icon name="lucideDatabase" class="text-muted-foreground" hlmIcon size="lg" />
+    </div>
+    <h3 class="text-lg font-semibold mb-2">No data sources configured</h3>
+    <p class="text-sm text-muted-foreground max-w-sm mb-6">
+      Get started by adding a database connection. Supports PostgreSQL, MySQL, MariaDB, and Oracle.
+    </p>
+    <button hlmBtn (click)="openCreateSheet()">
+      <ng-icon name="lucidePlus" class="mr-2" hlmIcon size="sm" />
+      Add your first data source
+    </button>
+  </div>
+}
+
+<!-- Loading State -->
+@if (loading()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+    @for (i of [1, 2, 3]; track i) {
+      <div class="rounded-xl border bg-card p-6 animate-pulse">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-lg bg-muted"></div>
+            <div>
+              <div class="h-4 w-32 bg-muted rounded mb-2"></div>
+              <div class="h-3 w-20 bg-muted rounded"></div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="h-3 w-full bg-muted rounded"></div>
+          <div class="h-3 w-3/4 bg-muted rounded"></div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- Cards Grid -->
+@if (dataSources().length > 0 && !loading()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+    @for (ds of dataSources(); track ds.id) {
+      <div
+        class="group relative rounded-xl border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/30 overflow-hidden"
+      >
+        <!-- Gradient accent bar -->
+        <div
+          class="absolute top-0 left-0 right-0 h-1 opacity-60 transition-opacity group-hover:opacity-100"
+          [ngClass]="{
+            'bg-linear-to-r from-blue-500 to-blue-600': ds.type === 'postgresql',
+            'bg-linear-to-r from-orange-500 to-orange-600': ds.type === 'mysql',
+            'bg-linear-to-r from-sky-400 to-sky-600': ds.type === 'mariadb',
+            'bg-linear-to-r from-red-500 to-red-600': ds.type === 'oracle',
+          }"
+        ></div>
+
+        <div class="p-5 pt-6">
+          <!-- Top row: icon, name, actions -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <div
+                class="flex items-center justify-center h-10 w-10 rounded-lg border bg-muted/50 shrink-0"
+              >
+                <ng-icon name="lucideDatabase" hlmIcon size="sm" [class]="getIconColor(ds.type)" />
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-sm font-semibold truncate">{{ ds.name }}</h3>
+                <span
+                  class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border font-medium mt-1"
+                  [ngClass]="getTypeBadgeClass(ds.type)"
+                >
+                  {{ getTypeLabel(ds.type) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div
+              class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <button
+                hlmBtn
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8"
+                (click)="openUpdateSheet(ds)"
+              >
+                <ng-icon name="lucidePencil" hlmIcon size="xs" />
+              </button>
+              <button
+                hlmBtn
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 text-destructive hover:text-destructive"
+                (click)="confirmDelete(ds)"
+              >
+                <ng-icon name="lucideTrash2" hlmIcon size="xs" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Connection details -->
+          <div class="space-y-2.5 text-xs">
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <ng-icon name="lucideServer" hlmIcon size="xs" class="shrink-0" />
+              <span class="truncate font-mono">{{ ds.host }}:{{ ds.port }}</span>
+            </div>
+            @if (ds.defaultDatabase) {
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <ng-icon name="lucideDatabase" hlmIcon size="xs" class="shrink-0" />
+                <span class="truncate font-mono">{{ ds.defaultDatabase }}</span>
+              </div>
+            }
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <ng-icon name="lucideCircleDot" hlmIcon size="xs" class="shrink-0" />
+              <span class="truncate font-mono">{{ ds.username }}</span>
+            </div>
+          </div>
+
+          <!-- Footer: SSL + Status -->
+          <div class="flex items-center justify-between mt-4 pt-3 border-t">
+            <div class="flex items-center gap-3">
+              <!-- SSL Badge -->
+              <span
+                class="inline-flex items-center gap-1 text-xs font-medium"
+                [ngClass]="
+                  ds.ssl ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                "
+              >
+                <ng-icon
+                  [name]="ds.ssl ? 'lucideShieldCheck' : 'lucideShieldOff'"
+                  hlmIcon
+                  size="xs"
+                />
+                {{ ds.ssl ? 'SSL' : 'No SSL' }}
+              </span>
+
+              <!-- Active Badge -->
+              <span
+                class="inline-flex items-center gap-1 text-xs font-medium"
+                [ngClass]="
+                  ds.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                "
+              >
+                <span
+                  class="h-1.5 w-1.5 rounded-full"
+                  [ngClass]="ds.isActive ? 'bg-emerald-500' : 'bg-muted-foreground'"
+                ></span>
+                {{ ds.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+
+            <!-- Test Connection -->
+            <button
+              hlmBtn
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs gap-1"
+              (click)="testConnection(ds)"
+              [disabled]="testingId() === ds.id"
+            >
+              <ng-icon
+                name="lucideZap"
+                hlmIcon
+                size="xs"
+                [class]="testingId() === ds.id ? 'animate-spin' : ''"
+              />
+              Test
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Add New Card -->
+    <button
+      class="rounded-xl border-2 border-dashed bg-card/50 hover:bg-card hover:border-primary/30 flex flex-col items-center justify-center py-12 gap-3 text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer min-h-[220px]"
+      (click)="openCreateSheet()"
+    >
+      <div class="rounded-full bg-muted p-3">
+        <ng-icon name="lucidePlus" hlmIcon size="sm" />
+      </div>
+      <span class="text-sm font-medium">Add Connection</span>
+    </button>
+  </div>
+}

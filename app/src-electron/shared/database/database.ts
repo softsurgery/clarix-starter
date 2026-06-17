@@ -9,6 +9,7 @@ import { RolePermissionEntity } from '../abstract-user-management/entities/role-
 import { AbstractUserEntity } from '../abstract-user-management/entities/abstract-user.entity';
 import { NotificationEntity } from '../notifications/entities/notification.entity';
 import { LogEntity } from '../logger/entities/log.entity';
+import { DataSourceEntity } from '../../modules/data-source/entities/data-source.entity';
 
 let dataSource: DataSource | null = null;
 
@@ -31,6 +32,7 @@ export async function initializeDatabase(): Promise<DataSource> {
       RolePermissionEntity,
       NotificationEntity,
       LogEntity,
+      DataSourceEntity,
     ],
     synchronize: true,
     // logging: !app.isPackaged,

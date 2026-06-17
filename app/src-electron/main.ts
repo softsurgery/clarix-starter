@@ -29,6 +29,7 @@ import { registerRoleHandlers } from './modules/role/ipcs/role.ipc';
 import { registerAuthHandlers } from './modules/auth/ipcs/auth.ipc';
 import { registerPyHandlers } from './modules/py/py.ipc';
 import { registerAgentHandlers } from './modules/agent/agent.ipc';
+import { registerDataSourceHandlers } from './modules/data-source/ipcs/data-source.ipc';
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
 
@@ -71,6 +72,7 @@ app.whenReady().then(async () => {
   registerAuthHandlers();
   registerPyHandlers();
   registerAgentHandlers();
+  registerDataSourceHandlers();
   createWindow();
 });
 

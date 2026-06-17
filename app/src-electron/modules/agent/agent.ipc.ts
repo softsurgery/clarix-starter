@@ -1,14 +1,17 @@
 import { ipcMain } from 'electron';
-import { OllamaService, OllamaChatMessage } from './ollama.service';
+import { OllamaService, OllamaChatMessage, OllamaGenerateOptions } from './ollama.service';
 
 export function registerAgentHandlers(): void {
   const ollamaService = new OllamaService();
   ollamaService.init(); // Initialize configuration
 
-  ipcMain.handle('agent:generate', async (_event, prompt: string) => {
-    const response = await ollamaService.generate(prompt);
-    return { response };
-  });
+  ipcMain.handle(
+    'agent:generate',
+    async (_event, prompt: string, options: OllamaGenerateOptions) => {
+      const response = await ollamaService.generate(prompt, options);
+      return { response };
+    },
+  );
 
   ipcMain.handle('agent:chat', async (_event, dto: any) => {
     const message = await ollamaService.chat(dto.messages, {

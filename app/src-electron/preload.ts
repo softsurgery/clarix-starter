@@ -51,6 +51,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   py: {
     sayHello: () => ipcRenderer.invoke('py:hello-cardinal'),
   },
+  // ── Data Source CRUD ────────────────────────────────────
+  dataSource: {
+    findAll: (query?: any) => ipcRenderer.invoke('dataSource:findAll', query),
+    findAllPaginated: (query?: any) => ipcRenderer.invoke('dataSource:findAllPaginated', query),
+    findOneById: (id: string) => ipcRenderer.invoke('dataSource:findOneById', id),
+    create: (data: any) => ipcRenderer.invoke('dataSource:create', data),
+    update: (id: string, data: any) => ipcRenderer.invoke('dataSource:update', id, data),
+    delete: (id: string) => ipcRenderer.invoke('dataSource:delete', id),
+    testConnection: (id: string) => ipcRenderer.invoke('dataSource:testConnection', id),
+  },
   // ── Agent ─────────────────────────────────────────────
   agent: {
     generate: (prompt: string) => ipcRenderer.invoke('agent:generate', prompt),

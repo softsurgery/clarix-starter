@@ -4,8 +4,8 @@ import { LoginComponent } from '@/pages/auth/login.component';
 import { UserComponent } from '@/pages/user/user.component';
 import { RoleComponent } from '@/pages/role/role.component';
 import { AgentComponent } from '@/pages/agent/agent.component';
+import { DataSourcesComponent } from '@/pages/data-sources/data-sources.component';
 import { authGuard } from '@/guards/auth.guard';
-
 
 export const routes: Routes = [
   {
@@ -30,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'agent',
     component: AgentComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'data-sources',
+    component: DataSourcesComponent,
     canActivate: [authGuard],
   },
   {

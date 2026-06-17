@@ -18,6 +18,11 @@ import type {
   UpdateUserDto,
 } from './user.types';
 import type { CreateRoleDto, ResponseRoleDto, UpdateRoleDto } from './role.types';
+import type {
+  CreateDataSourceDto,
+  ResponseDataSourceDto,
+  UpdateDataSourceDto,
+} from './data-source';
 
 export interface PaginatedMeta {
   page: number;
@@ -118,13 +123,23 @@ export interface PyAPI {
   sayHello(): Promise<{ message: string; output?: string; error?: string }>;
 }
 
+export interface DataSourceAPI {
+  findAll(query?: FindManyQueryDto): Promise<ResponseDataSourceDto[]>;
+  findAllPaginated(query?: FindManyQueryDto): Promise<PaginatedResponse<ResponseDataSourceDto>>;
+  findOneById(id: string): Promise<ResponseDataSourceDto | null>;
+  create(data: CreateDataSourceDto): Promise<ResponseDataSourceDto>;
+  update(id: string, data: UpdateDataSourceDto): Promise<ResponseDataSourceDto | null>;
+  delete(id: string): Promise<ResponseDataSourceDto>;
+  testConnection(id: string): Promise<{ success: boolean; message: string }>;
+}
+
 export interface AgentAPI {
-  generate(prompt: string): Promise<{ response: string }>;
+  generate(prompt: string, option: OllamaGenerateOptions): Promise<{ response: string }>;
   chat(dto: any): Promise<{ message: any }>;
   streamChat(
     dto: any,
     onToken: (token: string, done: boolean) => void,
-    onError: (err: string) => void
+    onError: (err: string) => void,
   ): void;
   health(): Promise<{ available: boolean }>;
   models(): Promise<{ models: string[] }>;
@@ -163,6 +178,8 @@ export interface ElectronAPI {
   py: PyAPI;
   /** Agent interactions */
   agent: AgentAPI;
+  /** Data Source CRUD operations */
+  dataSource: DataSourceAPI;
 }
 
 declare global {

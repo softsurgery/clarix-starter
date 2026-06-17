@@ -6,17 +6,21 @@ export const data = {
   },
   navMain: [
     {
-      title: 'Accueil',
+      title: 'Home',
       url: '/home',
       icon: 'lucideBot',
       isActive: true,
     },
     {
+      title: 'Data Sources',
+      url: '/data-sources',
+      icon: 'lucideDatabaseZap',
+      isActive: true,
+    },
+    {
       title: 'Content Management',
       icon: 'lucideFileText',
-      items: [
-      
-      ],
+      items: [],
     },
     {
       title: 'AI Testing',
@@ -27,8 +31,8 @@ export const data = {
           title: 'Agent Test',
           url: '/agent',
           icon: 'lucideBot',
-        }
-      ]
+        },
+      ],
     },
 
     {
