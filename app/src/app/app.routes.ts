@@ -5,6 +5,8 @@ import { UserComponent } from '@/pages/user/user.component';
 import { RoleComponent } from '@/pages/role/role.component';
 import { AgentComponent } from '@/pages/agent/agent.component';
 import { DataSourcesComponent } from '@/pages/data-sources/data-sources.component';
+import { CreateDataSourceComponent } from '@/pages/data-sources/create-data-source/create-data-source.component';
+import { UpdateDataSourceComponent } from '@/pages/data-sources/update-data-source/update-data-source.component';
 import { authGuard } from '@/guards/auth.guard';
 
 export const routes: Routes = [
@@ -35,6 +37,16 @@ export const routes: Routes = [
   {
     path: 'data-sources',
     component: DataSourcesComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'data-sources/new',
+    component: CreateDataSourceComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'data-sources/:id',
+    component: UpdateDataSourceComponent,
     canActivate: [authGuard],
   },
   {
