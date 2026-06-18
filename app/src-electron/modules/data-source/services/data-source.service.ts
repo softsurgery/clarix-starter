@@ -28,6 +28,7 @@ export class DataSourceService extends AbstractCrudService<DataSourceEntity> {
     try {
       await operations.testConnection();
       await this.update(id, { isActive: true });
+      console.log(`Successfully connected to "${ds.name}".`);
       return {
         success: true,
         message: `Successfully connected to "${ds.name}".`,
@@ -37,6 +38,7 @@ export class DataSourceService extends AbstractCrudService<DataSourceEntity> {
       await this.update(id, { isActive: false });
       const message =
         error instanceof Error ? error.message : 'Connection test failed with an unknown error';
+      console.error(`Failed to connect to "${ds.name}": ${message}`);
       return {
         success: false,
         message: `Failed to connect to "${ds.name}": ${message}`,

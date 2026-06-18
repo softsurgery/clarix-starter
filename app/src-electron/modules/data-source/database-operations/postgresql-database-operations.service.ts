@@ -4,8 +4,9 @@ import type { ColumnInfo, TableInfo } from './types/database-operations.types';
 
 export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperationsService {
   private client: Client | null = null;
+  private isConnected = false;
 
-  private getClient(): Client {
+  private async getConnectedClient(): Promise<Client> {
     if (!this.client) {
       this.client = new Client({
         host: this.config.host,
@@ -17,13 +18,18 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
         connectionTimeoutMillis: 10_000,
       });
     }
+
+    if (!this.isConnected) {
+      await this.client.connect();
+      this.isConnected = true;
+    }
+
     return this.client;
   }
 
   async testConnection(): Promise<void> {
-    const client = this.getClient();
     try {
-      await client.connect();
+      const client = await this.getConnectedClient();
       await client.query('SELECT 1');
     } finally {
       await this.disconnect();
@@ -31,8 +37,7 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
   }
 
   async getAllTables(schema = 'public'): Promise<TableInfo[]> {
-    const client = this.getClient();
-    await client.connect();
+    const client = await this.getConnectedClient();
 
     const result = await client.query<{ table_schema: string; table_name: string }>(
       `SELECT table_schema, table_name
@@ -50,8 +55,7 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
   }
 
   async getTableColumns(tableName: string, schema = 'public'): Promise<ColumnInfo[]> {
-    const client = this.getClient();
-    await client.connect();
+    const client = await this.getConnectedClient();
 
     const columnsResult = await client.query<{
       column_name: string;
@@ -93,8 +97,7 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
     sql: string,
     params: unknown[] = [],
   ): Promise<T[]> {
-    const client = this.getClient();
-    await client.connect();
+    const client = await this.getConnectedClient();
     const result = await client.query(sql, params);
     return result.rows as T[];
   }
@@ -103,6 +106,7 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
     if (this.client) {
       await this.client.end().catch(() => undefined);
       this.client = null;
+      this.isConnected = false;
     }
   }
 }
