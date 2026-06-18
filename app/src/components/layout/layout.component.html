@@ -11,7 +11,9 @@
           <div>
             @if (layoutService.injectableTitleContent | async; as titleContent) {
               @if (titleContent.component) {
-                <ng-container *ngComponentOutlet="titleContent.component; inputs: titleContent.inputs" />
+                <ng-container
+                  *ngComponentOutlet="titleContent.component; inputs: titleContent.inputs"
+                />
               }
             }
           </div>
@@ -19,11 +21,13 @@
         <hlm-separator />
       </div>
     }
-    <div class="flex flex-col flex-1 px-4 pb-4 overflow-hidden">
-      <ng-content />
+    <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
+      <div class="flex flex-col flex-1 min-h-0 px-4 pb-4 overflow-hidden">
+        <ng-content />
+      </div>
       @if (layoutService.injectableFooter | async; as footer) {
         @if (footer.component) {
-          <footer class="px-2 absolute bottom-0 left-0 right-0">
+          <footer class="shrink-0">
             <ng-container *ngComponentOutlet="footer.component; inputs: footer.inputs" />
           </footer>
         }
