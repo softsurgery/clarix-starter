@@ -37,6 +37,14 @@ export class LayoutService {
     inputs: {},
   });
 
+  injectableTitleContent = new BehaviorSubject<{
+    component: any;
+    inputs?: { [key: string]: any };
+  }>({
+    component: null,
+    inputs: {},
+  });
+
   constructor() {
     this.applyTheme(this.theme.value);
 
@@ -83,6 +91,14 @@ export class LayoutService {
 
   clearFooter(): void {
     this.injectableFooter.next({ component: null, inputs: {} });
+  }
+
+  setTitleContent(component: any, inputs?: { [key: string]: any }): void {
+    this.injectableTitleContent.next({ component, inputs });
+  }
+
+  clearTitleContent(): void {
+    this.injectableTitleContent.next({ component: null, inputs: {} });
   }
 
   toggleFullscreen() {
