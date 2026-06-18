@@ -1,4 +1,12 @@
-import { Component, inject, OnDestroy, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  computed,
+  ViewContainerRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
@@ -9,7 +17,6 @@ import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucidePlus,
-
   lucidePencil,
   lucideTrash2,
   lucideShieldCheck,
@@ -56,7 +63,15 @@ import { DataSourceCardComponent } from './data-source-card/data-source-card.com
 
 @Component({
   selector: 'app-data-sources',
-  imports: [CommonModule, DatatableBuilderComponent, DataSourceCardComponent, ...HlmButtonImports, ...HlmBadgeImports, ...HlmIconImports, NgIcon],
+  imports: [
+    CommonModule,
+    DatatableBuilderComponent,
+    DataSourceCardComponent,
+    ...HlmButtonImports,
+    ...HlmBadgeImports,
+    ...HlmIconImports,
+    NgIcon,
+  ],
   viewProviders: [
     provideIcons({
       lucidePlus,
@@ -190,6 +205,7 @@ export class DataSourcesComponent implements OnInit, OnDestroy {
     this.dataSourceService.testConnection(ds.id).subscribe({
       next: (result) => {
         this.testingId.set(null);
+        this.updateDataSourceStatus(ds.id, result.isActive);
         if (result.success) {
           toast.success(result.message);
         } else {
@@ -198,8 +214,17 @@ export class DataSourcesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.testingId.set(null);
+        this.updateDataSourceStatus(ds.id, false);
         toast.error('Connection test failed');
       },
     });
+  }
+
+  private updateDataSourceStatus(id: string, isActive: boolean) {
+    const updated = this.dataSources().map((item) =>
+      item.id === id ? { ...item, isActive } : item,
+    );
+    this.dataSources.set(updated);
+    this.dataSources$.next(updated);
   }
 }

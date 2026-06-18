@@ -21,6 +21,7 @@ import type { CreateRoleDto, ResponseRoleDto, UpdateRoleDto } from './role.types
 import type {
   CreateDataSourceDto,
   ResponseDataSourceDto,
+  TestConnectionResult,
   UpdateDataSourceDto,
 } from './data-source';
 
@@ -130,7 +131,7 @@ export interface DataSourceAPI {
   create(data: CreateDataSourceDto): Promise<ResponseDataSourceDto>;
   update(id: string, data: UpdateDataSourceDto): Promise<ResponseDataSourceDto | null>;
   delete(id: string): Promise<ResponseDataSourceDto>;
-  testConnection(id: string): Promise<{ success: boolean; message: string }>;
+  testConnection(id: string): Promise<TestConnectionResult>;
 }
 
 export interface AgentAPI {
