@@ -52,9 +52,11 @@ const DB_ICON_COLORS: Record<string, string> = {
   oracle: 'text-red-500',
 };
 
+import { DataSourceCardComponent } from './data-source-card/data-source-card.component';
+
 @Component({
   selector: 'app-data-sources',
-  imports: [CommonModule, DatatableBuilderComponent, ...HlmButtonImports, ...HlmBadgeImports, ...HlmIconImports, NgIcon],
+  imports: [CommonModule, DatatableBuilderComponent, DataSourceCardComponent, ...HlmButtonImports, ...HlmBadgeImports, ...HlmIconImports, NgIcon],
   viewProviders: [
     provideIcons({
       lucidePlus,

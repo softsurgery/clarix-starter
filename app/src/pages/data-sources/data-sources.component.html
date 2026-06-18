@@ -1,5 +1,3 @@
-
-
 <!-- Empty State -->
 @if (dataSources().length === 0 && !loading()) {
   <div class="flex flex-col items-center justify-center py-24 text-center">
@@ -39,147 +37,13 @@
     <!-- Grid View -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
       @for (ds of dataSources(); track ds.id) {
-        <div
-          class="group relative flex flex-col items-center justify-center text-center p-6 rounded-xl border bg-card shadow-xs hover:shadow-md transition-all duration-200 hover:border-primary/30 overflow-hidden"
-        >
-          <!-- Top action menu (subtle, absolute top-3 right-3) -->
-          <div
-            class="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              class="h-7 w-7"
-              (click)="navigateToUpdate(ds.id)"
-              title="Edit Connection"
-            >
-              <ng-icon name="lucidePencil" hlmIcon size="xs" />
-            </button>
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              class="h-7 w-7 text-destructive hover:text-destructive"
-              (click)="confirmDelete(ds)"
-              title="Delete Connection"
-            >
-              <ng-icon name="lucideTrash2" hlmIcon size="xs" />
-            </button>
-          </div>
-
-          <!-- Logo (centered, database logo centric) -->
-          <div
-            class="flex items-center justify-center h-16 w-16 rounded-full border-2 bg-background shadow-xs shrink-0 transition-transform group-hover:scale-105 duration-200"
-            [ngClass]="{
-              'border-blue-500/30 bg-blue-500/5': ds.type === 'postgresql',
-              'border-orange-500/30 bg-orange-500/5': ds.type === 'mysql',
-              'border-sky-500/30 bg-sky-500/5': ds.type === 'mariadb',
-              'border-red-500/30 bg-red-500/5': ds.type === 'oracle',
-            }"
-          >
-            @if (ds.type === 'postgresql') {
-              <img
-                src="assets/images/Postgresql_elephant.svg"
-                alt="PostgreSQL"
-                class="h-24 w-24 object-contain"
-              />
-            }
-            @if (ds.type === 'mysql') {
-              <img src="assets/images/mysql.png" alt="MySQL" class="h-24 w-24 object-contain" />
-            }
-            @if (ds.type === 'mariadb') {
-              <img src="assets/images/mariadb.png" alt="MariaDB" class="h-24 w-24 object-contain" />
-            }
-            @if (ds.type === 'oracle') {
-              <img src="assets/images/oracle.png" alt="Oracle" class="h-24 w-24 object-contain" />
-            }
-          </div>
-
-          <!-- Content -->
-          <div class="mt-4 w-full">
-            <!-- Connection Name -->
-            <h3 class="text-base font-semibold tracking-tight truncate px-2" [title]="ds.name">
-              {{ ds.name }}
-            </h3>
-
-            <!-- Database Type Badge -->
-            <div class="mt-1.5 flex justify-center">
-              <span
-                class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-semibold tracking-wider uppercase"
-                [ngClass]="getTypeBadgeClass(ds.type)"
-              >
-                {{ getTypeLabel(ds.type) }}
-              </span>
-            </div>
-
-            <!-- Host details -->
-            <p class="mt-3 text-xs font-mono text-muted-foreground truncate px-2">
-              {{ ds.host }}:{{ ds.port }}
-            </p>
-          </div>
-
-          <!-- Divider -->
-          <div class="w-full border-t my-4"></div>
-
-          <!-- Footer: Status + Test Connection -->
-          <div class="flex items-center justify-between w-full text-xs">
-            <!-- Status Indicators -->
-            <div class="flex items-center gap-2">
-              <!-- Active dot -->
-              <span
-                class="inline-flex items-center gap-1 font-medium"
-                [ngClass]="
-                  ds.isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
-                "
-                [title]="ds.isActive ? 'Active' : 'Inactive'"
-              >
-                <span
-                  class="h-2 w-2 rounded-full"
-                  [ngClass]="ds.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'"
-                ></span>
-                {{ ds.isActive ? 'Active' : 'Inactive' }}
-              </span>
-
-              <!-- SSL Check/Off -->
-              <span
-                class="inline-flex items-center gap-1 font-medium border-l pl-2"
-                [ngClass]="
-                  ds.ssl ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
-                "
-              >
-                <ng-icon
-                  [name]="ds.ssl ? 'lucideShieldCheck' : 'lucideShieldOff'"
-                  hlmIcon
-                  size="xs"
-                />
-                {{ ds.ssl ? 'SSL' : 'Plain' }}
-              </span>
-            </div>
-
-            <!-- Test Connection Button -->
-            <button
-              hlmBtn
-              variant="ghost"
-              size="sm"
-              class="h-7 px-2 text-xs gap-1 hover:bg-muted"
-              (click)="testConnection(ds)"
-              [disabled]="testingId() === ds.id"
-            >
-              <ng-icon
-                name="lucideZap"
-                hlmIcon
-                size="xs"
-                [class]="
-                  testingId() === ds.id
-                    ? 'animate-spin text-primary'
-                    : 'text-muted-foreground group-hover:text-primary'
-                "
-              />
-              <span>Test</span>
-            </button>
-          </div>
-        </div>
+        <app-data-source-card
+          [ds]="ds"
+          [isTesting]="testingId() === ds.id"
+          (edit)="navigateToUpdate(ds.id)"
+          (delete)="confirmDelete(ds)"
+          (test)="testConnection(ds)"
+        />
       }
 
       <!-- Add New Card Grid Item -->
@@ -187,8 +51,8 @@
         class="rounded-xl border-2 border-dashed bg-card/50 hover:bg-card hover:border-primary/30 flex flex-col items-center justify-center p-6 gap-3 text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer min-h-[220px]"
         (click)="navigateToCreate()"
       >
-        <div class="rounded-full bg-muted p-3">
-          <ng-icon name="lucidePlus" hlmIcon size="sm" />
+        <div class="rounded-full bg-muted h-12 w-12 flex justify-center items-center">
+          <ng-icon name="lucidePlus" hlmIcon class="size-8" />
         </div>
         <span class="text-sm font-medium">Add Connection</span>
       </button>
