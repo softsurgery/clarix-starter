@@ -1,0 +1,48 @@
+@if (resolvedActions) {
+<div class="flex justify-end">
+  <button hlmBtn variant="ghost" class="h-8 w-8 p-0" [hlmDropdownMenuTrigger]="ActionDropDownMenu">
+    <span class="sr-only">Open menu</span>
+    <ng-icon hlm size="sm" name="lucideEllipsis" />
+  </button>
+
+  <ng-template #ActionDropDownMenu>
+    <hlm-dropdown-menu>
+      <hlm-dropdown-menu-label class="font-bold">Actions</hlm-dropdown-menu-label>
+      <hlm-dropdown-menu-separator />
+
+      @if (resolvedActions.inspectAction && !resolvedActions.inspectAction.isHidden) {
+      <button hlmDropdownMenuItem [disabled]="resolvedActions.inspectAction.disabled ?? false"
+        (click)="executeAction(resolvedActions.inspectAction)">
+        {{ resolvedActions.inspectAction.label }}
+      </button>
+      }
+
+      @if (resolvedActions.editAction && !resolvedActions.editAction.isHidden) {
+      <button hlmDropdownMenuItem [disabled]="resolvedActions.editAction.disabled ?? false"
+        (click)="executeAction(resolvedActions.editAction)">
+        {{ resolvedActions.editAction.label }}
+      </button>
+      }
+
+      @if (resolvedActions.deleteAction && !resolvedActions.deleteAction.isHidden) {
+      <button hlmDropdownMenuItem [disabled]="resolvedActions.deleteAction.disabled ?? false"
+        (click)="executeAction(resolvedActions.deleteAction)">
+        {{ resolvedActions.deleteAction.label }}
+      </button>
+      }
+
+      @for (group of additionalActionEntries; track group.groupLabel) {
+      <hlm-dropdown-menu-separator />
+      <hlm-dropdown-menu-label>{{ group.groupLabel }}</hlm-dropdown-menu-label>
+      @for (action of group.actions; track action.label) {
+      @if (!action.isHidden) {
+      <button hlmDropdownMenuItem [disabled]="action.disabled ?? false" (click)="executeAction(action)">
+        {{ action.label }}
+      </button>
+      }
+      }
+      }
+    </hlm-dropdown-menu>
+  </ng-template>
+</div>
+}

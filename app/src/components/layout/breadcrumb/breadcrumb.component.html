@@ -1,0 +1,14 @@
+<ol hlmBreadcrumbList>
+    @for (breadcrumb of layoutService.breadcrumbs | async; track breadcrumb.url; let last = $last) {
+    <li hlmBreadcrumbItem>
+        @if (last || !breadcrumb.url) {
+        <span hlmBreadcrumbPage>{{ breadcrumb.label }}</span>
+        } @else {
+        <a hlmBreadcrumbLink [link]="breadcrumb.url">{{ breadcrumb.label }}</a>
+        }
+    </li>
+    @if (!last) {
+    <li hlmBreadcrumbSeparator></li>
+    }
+    }
+</ol>

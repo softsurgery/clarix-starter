@@ -1,0 +1,7 @@
+<div class="flex flex-col flex-1 overflow-hidden">
+  <div class="flex flex-col flex-1 p-6 overflow-auto">
+    @if (formStructure()) {
+      <app-form-builder [structure]="formStructure()!" />
+    }
+  </div>
+</div>

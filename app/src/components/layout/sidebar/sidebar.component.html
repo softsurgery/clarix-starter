@@ -1,0 +1,20 @@
+<div hlmSidebarWrapper class="flex flex-col flex-1 max-h-screen min-h-screen overflow-hidden">
+    <ng-content select="[header]" />
+    <div class="flex flex-1 overflow-hidden h-full">
+        <hlm-sidebar sidebarContainerClass="top-(--header-height) h-[calc(100dvh-var(--header-height))]">
+            <hlm-sidebar-header>
+                <app-nav-context></app-nav-context>
+            </hlm-sidebar-header>
+
+            <hlm-sidebar-content>
+                <app-nav [items]="data.navMain" />
+                <!-- <app-nav-projects [projects]="data.projects" /> -->
+                <app-nav-secondary class="mt-auto" [items]="data.navSecondary" />
+            </hlm-sidebar-content>
+            <hlm-sidebar-footer>
+                <app-nav-user [user]="sidebarUser()" />
+            </hlm-sidebar-footer>
+        </hlm-sidebar>
+        <ng-content />
+    </div>
+</div>

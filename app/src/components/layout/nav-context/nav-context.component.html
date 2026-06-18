@@ -1,0 +1,37 @@
+<ul hlmSidebarMenu *ngIf="activeTeam()">
+    <li hlmSidebarMenuItem>
+        <button hlmSidebarMenuButton size="lg" [hlmDropdownMenuTrigger]="menu" align="start" side="right">
+            <div
+                class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <ng-icon [name]="activeTeam()?.logo" size="sm"></ng-icon>
+            </div>
+            <div class="grid flex-1 text-left text-sm leading-tight">
+                <span class="truncate font-semibold">{{ activeTeam()?.name }}</span>
+                <span class="truncate text-xs text-muted-foreground">{{ activeTeam()?.plan }}</span>
+            </div>
+            <ng-icon name="lucideChevronsUpDown" class="ml-auto"></ng-icon>
+        </button>
+    </li>
+</ul>
+
+<ng-template #menu>
+    <hlm-dropdown-menu class="min-w-56 rounded-lg mx-4">
+        <div hlmDropdownMenuLabel class="text-xs">Teams</div>
+        <button hlmDropdownMenuItem *ngFor="let team of teams; let i = index" (click)="setActiveTeam(team)">
+            <div class="flex size-6 items-center justify-center rounded-md border">
+                <ng-icon [name]="team.logo" size="sm"></ng-icon>
+            </div>
+            <span>{{ team.name }}</span>
+            <span hlmDropdownMenuShortcut>{{ getKeyboardShortcut(i) }}</span>
+        </button>
+
+        <hlm-dropdown-menu-separator></hlm-dropdown-menu-separator>
+
+        <button hlmDropdownMenuItem>
+            <div class="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                <ng-icon name="lucidePlus" size="sm"></ng-icon>
+            </div>
+            <span class="font-semibold text-muted-foreground">Add team</span>
+        </button>
+    </hlm-dropdown-menu>
+</ng-template>
