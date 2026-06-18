@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { LayoutService } from '@/components/layout/layout.service';
 import { DataSourceService } from '@/pages/data-sources/data-source.service';
-import { DatabaseQueryAgentService } from '@/pages/qa/qa-query.service';
-import type { DatabaseQueryAgentResult, ResponseDataSourceDto } from '@/types';
+import { QAService } from '@/pages/qa/qa.service';
+import type { QAResult, ResponseDataSourceDto } from '@/types';
 import { QAnputComponent } from './qa-input/qa-input.component';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { QATitleComponent } from './qa-history/qa-title.component';
 
 @Component({
   selector: 'app-agent',
@@ -19,17 +20,17 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 export class QAComponent implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
   private dataSourceService = inject(DataSourceService);
-  private databaseQueryAgentService = inject(DatabaseQueryAgentService);
+  private qaService = inject(QAService);
 
   question = '';
   selectedDataSourceId: string | null = null;
   dataSources = signal<ResponseDataSourceDto[]>([]);
-  result = signal<DatabaseQueryAgentResult | null>(null);
+  result = signal<QAResult | null>(null);
   loading = signal<boolean>(false);
 
   itemToString = (value: any): string => {
     const ds = this.dataSources().find((d) => d.id === value);
-    return ds ? `${ds.name} (${ds.type})` : value?.toString() ?? '';
+    return ds ? `${ds.name} (${ds.type})` : (value?.toString() ?? '');
   };
 
   ngOnInit() {
@@ -39,6 +40,7 @@ export class QAComponent implements OnInit, OnDestroy {
       'Ask questions about your connected databases using natural language.',
     );
     this.layoutService.setFooter(QAnputComponent, { agent: this });
+    this.layoutService.setTitleContent(QATitleComponent, {});
     this.loadDataSources();
   }
 
@@ -46,6 +48,7 @@ export class QAComponent implements OnInit, OnDestroy {
     this.layoutService.clearBreadcrumbs();
     this.layoutService.clearIntro();
     this.layoutService.clearFooter();
+    this.layoutService.clearTitleContent();
   }
 
   private async loadDataSources() {
@@ -65,7 +68,7 @@ export class QAComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom(
-        this.databaseQueryAgentService.askQuestion({
+        this.qaService.askQuestion({
           dataSourceId: this.selectedDataSourceId,
           question: this.question.trim(),
         }),

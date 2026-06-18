@@ -18,7 +18,7 @@ export const data = {
       isActive: true,
     },
     {
-      title: 'Toolchain',
+      title: 'Database Q&A',
       url: '/agent',
       icon: 'lucideBot',
     },

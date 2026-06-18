@@ -16,7 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   /** Send a ping and get a pong from main process */
   ping: (): Promise<string> => ipcRenderer.invoke('ping'),
 
- 
   // ── Storage ─────────────────────────────────────────
   storage: {
     store: (file: any) => ipcRenderer.invoke('storage:store', file),
@@ -65,7 +64,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   agent: {
     generate: (prompt: string) => ipcRenderer.invoke('agent:generate', prompt),
     chat: (dto: any) => ipcRenderer.invoke('agent:chat', dto),
-    streamChat: (dto: any, onToken: (token: string, done: boolean) => void, onError: (err: string) => void) => {
+    streamChat: (
+      dto: any,
+      onToken: (token: string, done: boolean) => void,
+      onError: (err: string) => void,
+    ) => {
       ipcRenderer.send('agent:chat-stream', dto);
       const listener = (_event: any, data: any) => {
         if (data.error) {
@@ -82,6 +85,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     health: () => ipcRenderer.invoke('agent:health'),
     models: () => ipcRenderer.invoke('agent:models'),
+  },
+  qa: {
     askDatabase: (dto: any) => ipcRenderer.invoke('agent:askDatabase', dto),
+  },
+  // ── Agent Session History ────────────────────────────────
+  qaSession: {
+    findAll: () => ipcRenderer.invoke('qaSession:findAll'),
+    findOneById: (id: string) => ipcRenderer.invoke('qaSession:findOneById', id),
+    delete: (id: string) => ipcRenderer.invoke('qaSession:delete', id),
+    deleteAll: () => ipcRenderer.invoke('qaSession:deleteAll'),
   },
 });

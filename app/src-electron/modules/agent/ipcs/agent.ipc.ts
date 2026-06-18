@@ -1,12 +1,9 @@
 import { ipcMain } from 'electron';
 import { OllamaService, OllamaGenerateOptions } from '../services/ollama.service';
-import { DatabaseQueryAgentService } from '../services/database-query-agent.service';
-import type { AskDatabaseQuestionDto } from '../interfaces/database-query-agent';
 
 export function registerAgentHandlers(): void {
   const ollamaService = new OllamaService();
   ollamaService.init();
-  const databaseQueryAgentService = new DatabaseQueryAgentService(ollamaService);
 
   ipcMain.handle(
     'agent:generate',
@@ -49,13 +46,5 @@ export function registerAgentHandlers(): void {
   ipcMain.handle('agent:models', async () => {
     const models = await ollamaService.listModels();
     return { models };
-  });
-
-  ipcMain.handle('agent:askDatabase', async (_event, dto: AskDatabaseQuestionDto) => {
-    console.log('[AgentIPC] agent:askDatabase invoked', {
-      dataSourceId: dto.dataSourceId,
-      question: dto.question,
-    });
-    return databaseQueryAgentService.askQuestion(dto);
   });
 }

@@ -9,11 +9,13 @@ import type {
   ColumnInfo,
   TableInfo,
 } from '@/modules/data-source/database-operations/types/database-operations.types';
-import { OllamaService } from './ollama.service';
+import { OllamaService } from '../../agent/services/ollama.service';
 import type {
   AskDatabaseQuestionDto,
   DatabaseQueryAgentResult,
-} from '../interfaces/database-query-agent';
+} from '../../agent/interfaces/database-query-agent';
+import { QASessionService } from '@/modules/qa/services/qa-session.service';
+import { QASessionStatus } from '@/modules/qa/enums/qa-session-status.enum';
 
 const LOG_PREFIX = '[DatabaseQueryAgent]';
 const MAX_RESULT_ROWS = 100;
@@ -35,13 +37,19 @@ const FORBIDDEN_SQL_KEYWORDS = [
   'REPLACE',
 ];
 
-export class DatabaseQueryAgentService {
+export class QAService {
   private readonly dataSourceRepository = new DataSourceRepository();
+  private readonly qaSessionService = new QASessionService();
 
   constructor(private readonly ollamaService: OllamaService) {}
 
   async askQuestion(dto: AskDatabaseQuestionDto): Promise<DatabaseQueryAgentResult> {
     const startedAt = Date.now();
+    const logCollector: string[] = [];
+    const collectLog = (message: string) =>
+      logCollector.push(`[${new Date().toISOString()}] ${message}`);
+
+    collectLog(`Step 1 — Starting database Q&A pipeline | question: ${dto.question}`);
     logStep(1, 'Starting database Q&A pipeline', {
       dataSourceId: dto.dataSourceId,
       question: dto.question,
@@ -51,10 +59,14 @@ export class DatabaseQueryAgentService {
     const dataSource = await this.dataSourceRepository.findOneById(dto.dataSourceId);
 
     if (!dataSource) {
+      collectLog('Step 1 — Failed — data source not found');
       logStep(1, 'Failed — data source not found', { dataSourceId: dto.dataSourceId });
-      return { success: false, error: 'Data source not found' };
+      const result: DatabaseQueryAgentResult = { success: false, error: 'Data source not found' };
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, undefined);
+      return result;
     }
 
+    collectLog(`Step 1 — Data source loaded: ${dataSource.name} (${dataSource.type})`);
     logStep(1, 'Data source loaded', {
       name: dataSource.name,
       type: dataSource.type,
@@ -68,77 +80,127 @@ export class DatabaseQueryAgentService {
     );
 
     try {
+      collectLog('Step 2 — Introspecting database schema...');
       logStep(2, 'Introspecting database schema...');
       const schemaStartedAt = Date.now();
       const schemaContext = await this.buildSchemaContext(operations, dataSource.type, dataSource);
+      collectLog(`Step 2 — Schema introspection complete (${Date.now() - schemaStartedAt}ms)`);
       logStep(2, 'Schema introspection complete', {
         durationMs: Date.now() - schemaStartedAt,
         contextLength: schemaContext.length,
       });
 
+      collectLog('Step 3 — Requesting SQL from AI agent...');
       logStep(3, 'Requesting SQL from AI agent...', {
         dialect: getDialectName(dataSource.type),
         temperature: dto.temperature ?? 0.1,
       });
       const sqlStartedAt = Date.now();
       const { sql, rawResponse } = await this.generateSql(dto, dataSource.type, schemaContext);
+      collectLog(`Step 3 — SQL generation complete (${Date.now() - sqlStartedAt}ms) | SQL: ${sql}`);
       logStep(3, 'SQL generation complete', {
         durationMs: Date.now() - sqlStartedAt,
         sql,
         rawResponsePreview: truncate(rawResponse, 300),
       });
 
+      collectLog('Step 4 — Validating generated SQL...');
       logStep(4, 'Validating generated SQL...');
       if (!isReadOnlyQuery(sql)) {
+        collectLog('Step 4 — Validation failed — query is not read-only');
         logStep(4, 'Validation failed — query is not read-only', { sql });
-        return {
+        const result: DatabaseQueryAgentResult = {
           success: false,
           sql,
           error: 'Generated query is not read-only. Only SELECT queries are allowed.',
         };
+        await this.saveSession(dto, result, Date.now() - startedAt, logCollector, dataSource.name);
+        return result;
       }
+      collectLog('Step 4 — Validation passed — query is read-only');
       logStep(4, 'Validation passed — query is read-only');
 
+      collectLog('Step 5 — Executing SQL against database...');
       logStep(5, 'Executing SQL against database...');
       const queryStartedAt = Date.now();
       const data = await operations.executeQuery<Record<string, unknown>>(sql);
+      collectLog(
+        `Step 5 — Query execution complete (${Date.now() - queryStartedAt}ms) | ${data.length} rows`,
+      );
       logStep(5, 'Query execution complete', {
         durationMs: Date.now() - queryStartedAt,
         rowCount: data.length,
         columns: data[0] ? Object.keys(data[0]) : [],
       });
 
+      collectLog('Step 6 — Generating natural-language answer from results...');
       logStep(6, 'Generating natural-language answer from results...');
       const answerStartedAt = Date.now();
       const answer = await this.generateAnswer(dto, sql, data);
+      collectLog(`Step 6 — Answer generation complete (${Date.now() - answerStartedAt}ms)`);
       logStep(6, 'Answer generation complete', {
         durationMs: Date.now() - answerStartedAt,
         answerPreview: truncate(answer, 200),
       });
 
+      collectLog(
+        `Step 7 — Pipeline finished successfully (${Date.now() - startedAt}ms total, ${data.length} rows)`,
+      );
       logStep(7, 'Pipeline finished successfully', {
         totalDurationMs: Date.now() - startedAt,
         rowCount: data.length,
       });
 
-      return {
+      const result: DatabaseQueryAgentResult = {
         success: true,
         sql,
         data,
         answer,
         rowCount: data.length,
       };
+
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, dataSource.name);
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
+      collectLog(`Pipeline failed — ${message}`);
       logStep('!', 'Pipeline failed', {
         totalDurationMs: Date.now() - startedAt,
         error: message,
         stack: error instanceof Error ? error.stack : undefined,
       });
-      return { success: false, error: message };
+      const result: DatabaseQueryAgentResult = { success: false, error: message };
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, dataSource.name);
+      return result;
     } finally {
+      collectLog('Cleanup — Closing database connection');
       logStep('cleanup', 'Closing database connection');
       await operations.disconnect().catch(() => undefined);
+    }
+  }
+
+  private async saveSession(
+    dto: AskDatabaseQuestionDto,
+    result: DatabaseQueryAgentResult,
+    durationMs: number,
+    logs: string[],
+    dataSourceName?: string,
+  ): Promise<void> {
+    try {
+      await this.qaSessionService.create({
+        question: dto.question,
+        dataSourceId: dto.dataSourceId,
+        dataSourceName: dataSourceName,
+        status: result.success ? QASessionStatus.SUCCESS : QASessionStatus.FAILED,
+        generatedSql: result.sql,
+        answer: result.answer,
+        rowCount: result.rowCount,
+        error: result.error,
+        durationMs,
+        logs: logs.join('\n'),
+      });
+    } catch (err) {
+      console.error('[DatabaseQueryAgent] Failed to save session:', err);
     }
   }
 

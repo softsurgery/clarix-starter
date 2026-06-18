@@ -1,11 +1,11 @@
-export interface AskDatabaseQuestionDto {
+export interface QADto {
   dataSourceId: string;
   question: string;
   model?: string;
   temperature?: number;
 }
 
-export interface DatabaseQueryAgentResult {
+export interface QAResult {
   success: boolean;
   sql?: string;
   data?: Record<string, unknown>[];

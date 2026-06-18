@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QAComponent } from '../qa.component';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 @Component({
   selector: 'app-agent-input',
   standalone: true,
-  imports: [CommonModule, FormsModule, HlmInputImports],
+  imports: [CommonModule, FormsModule, HlmInputImports, HlmButtonImports],
   templateUrl: 'qa-input.component.html',
 })
 export class QAnputComponent {

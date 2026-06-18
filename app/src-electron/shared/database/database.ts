@@ -10,6 +10,7 @@ import { AbstractUserEntity } from '../abstract-user-management/entities/abstrac
 import { NotificationEntity } from '../notifications/entities/notification.entity';
 import { LogEntity } from '../logger/entities/log.entity';
 import { DataSourceEntity } from '../../modules/data-source/entities/data-source.entity';
+import { QASessionEntity } from '../../modules/qa/entities/qa-session.entity';
 
 let dataSource: DataSource | null = null;
 
@@ -33,6 +34,7 @@ export async function initializeDatabase(): Promise<DataSource> {
       NotificationEntity,
       LogEntity,
       DataSourceEntity,
+      QASessionEntity,
     ],
     synchronize: true,
     // logging: !app.isPackaged,

@@ -1,0 +1,148 @@
+@if (inspecting()) {
+  <button hlmBtn variant="outline" size="sm" (click)="backToTable()">
+    <ng-icon name="lucideArrowLeft" hlmIcon size="sm" />
+    Back to history
+  </button>
+  <!-- Detail / Log View -->
+  <div class="flex flex-col gap-4 mt-4">
+    @if (inspectedSession(); as session) {
+      <div class="rounded-lg border bg-card p-4 space-y-4">
+        <!-- Question header -->
+        <div>
+          <div class="flex flex-row gap-2 items-center">
+            <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+              Question
+            </p>
+          </div>
+
+          <p class="text-sm font-semibold leading-snug">{{ session.question }}</p>
+        </div>
+
+        <!-- Metadata row -->
+        <div class="flex flex-wrap items-center gap-3">
+          @if (session.status === 'success') {
+            <span
+              hlmBadge
+              variant="outline"
+              class="text-[11px] h-5 px-2 bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30"
+            >
+              <ng-icon name="lucideCircleCheck" hlmIcon size="xs" class="mr-0.5" />
+              Success
+            </span>
+          } @else {
+            <span
+              hlmBadge
+              variant="outline"
+              class="text-[11px] h-5 px-2 bg-destructive/10 text-destructive border-destructive/30"
+            >
+              <ng-icon name="lucideCircleX" hlmIcon size="xs" class="mr-0.5" />
+              Failed
+            </span>
+          }
+
+          @if (session.dataSourceName) {
+            <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <ng-icon name="lucideDatabase" hlmIcon size="xs" />
+              {{ session.dataSourceName }}
+            </span>
+          }
+
+          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <ng-icon name="lucideClock" hlmIcon size="xs" />
+            {{ formatDuration(session.durationMs) }}
+          </span>
+
+          @if (session.rowCount != null) {
+            <span class="text-xs text-muted-foreground">
+              {{ session.rowCount }} row{{ session.rowCount === 1 ? '' : 's' }}
+            </span>
+          }
+        </div>
+
+        <!-- Generated SQL -->
+        @if (session.generatedSql) {
+          <div>
+            <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-1">
+              Generated SQL
+            </p>
+            <pre
+              class="p-3 rounded-md bg-muted/50 text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed border"
+              >{{ session.generatedSql }}</pre
+            >
+          </div>
+        }
+
+        <!-- Answer -->
+        @if (session.answer) {
+          <div>
+            <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+              Answer
+            </p>
+            <p class="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+              {{ session.answer }}
+            </p>
+          </div>
+        }
+
+        <!-- Error -->
+        @if (session.error) {
+          <div>
+            <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+              Error
+            </p>
+            <p class="text-sm text-destructive whitespace-pre-wrap leading-relaxed">
+              {{ session.error }}
+            </p>
+          </div>
+        }
+
+        <!-- Pipeline Logs -->
+        @if (session.logs) {
+          <div>
+            <button
+              class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-2"
+              (click)="logsExpanded.set(!logsExpanded())"
+            >
+              <ng-icon
+                [name]="logsExpanded() ? 'lucideChevronUp' : 'lucideChevronDown'"
+                hlmIcon
+                size="xs"
+              />
+              <ng-icon name="lucideScrollText" hlmIcon size="xs" />
+              Pipeline Execution Logs
+            </button>
+
+            @if (logsExpanded()) {
+              <pre
+                class="p-3 rounded-md bg-muted/50 text-[11px] font-mono overflow-x-auto max-h-[50vh] overflow-y-auto whitespace-pre-wrap leading-relaxed border"
+                >{{ session.logs }}</pre
+              >
+            }
+          </div>
+        }
+
+        <!-- Timestamp -->
+        <div class="text-xs text-muted-foreground/60 pt-1 border-t">
+          Created {{ formatDate(session.createdAt) }}
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <!-- Datatable View -->
+  <div class="flex flex-col gap-3 py-2">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-8">
+        <div
+          class="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground border-t-primary"
+        ></div>
+      </div>
+    } @else {
+      <app-datatable-builder
+        [dataTableObject]="dataTableObject"
+        [data]="data$"
+        [totalRecords]="totalRecords$"
+      ></app-datatable-builder>
+    }
+  </div>
+}

@@ -29,6 +29,7 @@ import type {
   DatabaseQueryAgentResult,
   OllamaGenerateOptions,
 } from './database-query-agent';
+import type { ResponseAgentSessionDto } from './qa-session';
 
 export interface PaginatedMeta {
   page: number;
@@ -149,7 +150,17 @@ export interface AgentAPI {
   ): void;
   health(): Promise<{ available: boolean }>;
   models(): Promise<{ models: string[] }>;
-  askDatabase(dto: AskDatabaseQuestionDto): Promise<DatabaseQueryAgentResult>;
+}
+
+export interface QAAPI {
+  askDatabase(dto: QADto): Promise<QAResult>;
+}
+
+export interface QASessionAPI {
+  findAll(): Promise<ResponseAgentSessionDto[]>;
+  findOneById(id: string): Promise<ResponseAgentSessionDto | null>;
+  delete(id: string): Promise<{ success: boolean }>;
+  deleteAll(): Promise<{ success: boolean }>;
 }
 
 export interface ElectronAPI {
@@ -187,6 +198,10 @@ export interface ElectronAPI {
   agent: AgentAPI;
   /** Data Source CRUD operations */
   dataSource: DataSourceAPI;
+  /** QA interactions */
+  qa: QAAPI;
+  /** Agent Session History */
+  qaSession: QASessionAPI;
 }
 
 declare global {
