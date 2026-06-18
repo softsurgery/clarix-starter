@@ -11,16 +11,18 @@
       Columns
       <ng-icon hlm name="lucideChevronDown" class="ml-2" size="sm" />
     </button>
-    @if (dataTableObject?.createAction && !dataTableObject?.createAction?.isHidden) {
-      <button
-        hlmBtn
-        size="sm"
-        (click)="dataTableObject?.createAction?.action?.()"
-        [disabled]="dataTableObject?.createAction?.disabled ?? false"
-      >
-        <ng-icon hlm name="lucidePlus" class="mr-2" size="sm" />
-        {{ dataTableObject?.createAction?.label }}
-      </button>
+    @if (dataTableObject?.createAction; as createAction) {
+      @if (!createAction.isHidden) {
+        <button
+          hlmBtn
+          size="sm"
+          (click)="createAction.action?.()"
+          [disabled]="createAction.disabled ?? false"
+        >
+          <ng-icon hlm name="lucidePlus" class="mr-2" size="sm" />
+          {{ createAction.label }}
+        </button>
+      }
     }
   </div>
   <ng-template #menu>
@@ -88,3 +90,14 @@
     </div>
   }
 </div>
+
+@if (dataTableObject; as dto) {
+  @if (dto.inlinePagination && !dto.disablePagination) {
+    <app-data-table-pagination
+      [table]="_table"
+      [totalRecords]="totalRecords"
+      [sizes]="dto.sizes || [10, 20, 50]"
+      [serverQuery]="_serverQuery"
+    ></app-data-table-pagination>
+  }
+}

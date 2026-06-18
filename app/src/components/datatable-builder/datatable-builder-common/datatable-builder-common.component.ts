@@ -58,6 +58,7 @@ import { DataTablePagination } from '../core/pagination';
     BrnSelectImports,
     HlmSelectImports,
     HlmTableImports,
+    DataTablePagination,
   ],
 })
 export class DatatableBuilderCommonComponent implements OnInit, OnDestroy {
@@ -79,7 +80,7 @@ export class DatatableBuilderCommonComponent implements OnInit, OnDestroy {
 
   _columns: ColumnDef<any>[] = [];
 
-  private get _serverQuery(): DataTableServerQuery | undefined {
+  protected get _serverQuery(): DataTableServerQuery | undefined {
     return this.dataTableObject?.enableServerActions ? this.dataTableObject.serverQuery : undefined;
   }
 
@@ -95,16 +96,20 @@ export class DatatableBuilderCommonComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initializeTable();
-    this.layoutService.setFooter(DataTablePagination, {
-      table: this._table,
-      totalRecords: this.totalRecords,
-      sizes: this.dataTableObject?.sizes || [10, 20, 50],
-      serverQuery: this._serverQuery,
-    });
+    if (!this.dataTableObject?.inlinePagination) {
+      this.layoutService.setFooter(DataTablePagination, {
+        table: this._table,
+        totalRecords: this.totalRecords,
+        sizes: this.dataTableObject?.sizes || [10, 20, 50],
+        serverQuery: this._serverQuery,
+      });
+    }
   }
 
   ngOnDestroy(): void {
-    this.layoutService.clearFooter();
+    if (!this.dataTableObject?.inlinePagination) {
+      this.layoutService.clearFooter();
+    }
   }
 
   initializeTable() {
