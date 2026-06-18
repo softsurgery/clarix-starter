@@ -1,44 +1,4 @@
-<!-- Action Header (No repeated page title/intro, which is handled by LayoutComponent) -->
-<div class="flex items-center justify-between mb-6">
-  <div></div>
-  <div class="flex items-center gap-3">
-    <!-- View Switcher -->
-    @if (dataSources().length > 0) {
-      <div class="flex items-center border rounded-lg p-1 bg-muted/40 shrink-0">
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="h-8 w-8 rounded-md"
-          [class.bg-background]="viewMode() === 'grid'"
-          [class.shadow-xs]="viewMode() === 'grid'"
-          (click)="setViewMode('grid')"
-          title="Grid View"
-        >
-          <ng-icon name="lucideLayoutGrid" hlmIcon size="sm" />
-        </button>
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="h-8 w-8 rounded-md"
-          [class.bg-background]="viewMode() === 'list'"
-          [class.shadow-xs]="viewMode() === 'list'"
-          (click)="setViewMode('list')"
-          title="List View"
-        >
-          <ng-icon name="lucideList" hlmIcon size="sm" />
-        </button>
-      </div>
-    }
 
-    <!-- Action Button -->
-    <button hlmBtn size="sm" (click)="navigateToCreate()">
-      <ng-icon name="lucidePlus" class="mr-2" hlmIcon size="sm" />
-      New Connection
-    </button>
-  </div>
-</div>
 
 <!-- Empty State -->
 @if (dataSources().length === 0 && !loading()) {

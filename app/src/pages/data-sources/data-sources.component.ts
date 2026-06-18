@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, ViewContainerRef } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
@@ -29,6 +29,7 @@ import type { ResponseDataSourceDto } from '@/types';
 import { DatatableBuilderComponent } from '@/components/datatable-builder/datatable-builder.component';
 import { DynamicDataTable } from '@/components/datatable-builder/datatable-builder.types';
 import { getDataSourceDataTableObject } from './utils/data-source.data-table';
+import { DataSourcesTitleComponent } from './data-sources-title.component';
 
 const DB_LABELS: Record<string, string> = {
   postgresql: 'PostgreSQL',
@@ -98,15 +99,23 @@ export class DataSourcesComponent implements OnInit, OnDestroy {
     (localStorage.getItem('clarix_ds_view_mode') as 'grid' | 'list') || 'grid',
   );
 
+  hasDataSources = computed(() => this.dataSources().length > 0);
+
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Data Sources', url: '/data-sources' }]);
     this.layoutService.setIntro('Data Sources', 'Configure and manage your database connections.');
+    this.layoutService.setTitleContent(DataSourcesTitleComponent, {
+      viewMode: this.viewMode,
+      setViewMode: (mode: 'grid' | 'list') => this.setViewMode(mode),
+      hasDataSources: this.hasDataSources,
+    });
     this.loadDataSources();
   }
 
   ngOnDestroy() {
     this.layoutService.clearBreadcrumbs();
     this.layoutService.clearIntro();
+    this.layoutService.clearTitleContent();
   }
 
   loadDataSources() {
