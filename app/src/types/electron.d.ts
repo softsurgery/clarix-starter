@@ -24,6 +24,11 @@ import type {
   TestConnectionResult,
   UpdateDataSourceDto,
 } from './data-source';
+import type {
+  AskDatabaseQuestionDto,
+  DatabaseQueryAgentResult,
+  OllamaGenerateOptions,
+} from './database-query-agent';
 
 export interface PaginatedMeta {
   page: number;
@@ -144,6 +149,7 @@ export interface AgentAPI {
   ): void;
   health(): Promise<{ available: boolean }>;
   models(): Promise<{ models: string[] }>;
+  askDatabase(dto: AskDatabaseQuestionDto): Promise<DatabaseQueryAgentResult>;
 }
 
 export interface ElectronAPI {

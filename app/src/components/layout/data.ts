@@ -18,23 +18,20 @@ export const data = {
       isActive: true,
     },
     {
+      title: 'Toolchain',
+      url: '/agent',
+      icon: 'lucideBot',
+    },
+    {
+      title: 'Charts',
+      url: '/agent-charts',
+      icon: 'lucideChartLine',
+    },
+    {
       title: 'Content Management',
       icon: 'lucideFileText',
       items: [],
     },
-    {
-      title: 'AI Testing',
-      url: '/agent',
-      icon: 'lucideBot',
-      items: [
-        {
-          title: 'Agent Test',
-          url: '/agent',
-          icon: 'lucideBot',
-        },
-      ],
-    },
-
     {
       title: 'User Management',
       url: '/user-management',

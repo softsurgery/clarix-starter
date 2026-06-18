@@ -3,7 +3,7 @@ import { HomeComponent } from '../pages/home/home.component';
 import { LoginComponent } from '@/pages/auth/login.component';
 import { UserComponent } from '@/pages/user/user.component';
 import { RoleComponent } from '@/pages/role/role.component';
-import { AgentComponent } from '@/pages/agent/agent.component';
+import { QAComponent } from '@/pages/qa/qa.component';
 import { DataSourcesComponent } from '@/pages/data-sources/data-sources.component';
 import { CreateDataSourceComponent } from '@/pages/data-sources/create-data-source/create-data-source.component';
 import { UpdateDataSourceComponent } from '@/pages/data-sources/update-data-source/update-data-source.component';
@@ -31,7 +31,7 @@ export const routes: Routes = [
   },
   {
     path: 'agent',
-    component: AgentComponent,
+    component: QAComponent,
     canActivate: [authGuard],
   },
   {

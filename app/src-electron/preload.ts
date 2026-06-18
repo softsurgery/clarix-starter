@@ -82,5 +82,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     health: () => ipcRenderer.invoke('agent:health'),
     models: () => ipcRenderer.invoke('agent:models'),
+    askDatabase: (dto: any) => ipcRenderer.invoke('agent:askDatabase', dto),
   },
 });
