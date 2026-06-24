@@ -7,7 +7,7 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 import { ModeToggleComponent } from '../mode-toggle/mode-toggle.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { LayoutService } from '../layout.service';
-import { LucideAngularModule, Fullscreen } from 'lucide-angular';
+import { LucideAngularModule, Minimize2, Maximize2 } from 'lucide-angular';
 import { HlmButton } from '@spartan-ng/helm/button';
 
 @Component({
@@ -30,5 +30,6 @@ import { HlmButton } from '@spartan-ng/helm/button';
 export class SiteHeaderComponent {
   layoutService = inject(LayoutService);
 
-  Fullscreen = Fullscreen;
+  Minimize2 = Minimize2;
+  Maximize2 = Maximize2;
 }
