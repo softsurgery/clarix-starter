@@ -89,6 +89,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   qa: {
     askDatabase: (dto: any) => ipcRenderer.invoke('agent:askDatabase', dto),
   },
+  charts: {
+    generate: (dto: any) => ipcRenderer.invoke('charts:generate', dto),
+  },
   // ── Agent Session History ────────────────────────────────
   qaSession: {
     findAll: () => ipcRenderer.invoke('qaSession:findAll'),

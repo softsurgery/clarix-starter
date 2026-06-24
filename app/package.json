@@ -12,6 +12,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:qa": "npm run build:electron && vitest run dist-electron/qa-queries.spec.js",
     "db:clear": "npm run build:electron && electron dist-electron/scripts/clear-db.js --no-sandbox",
     "db:seed": "npm run build:electron && electron dist-electron/scripts/dev-seed.js --no-sandbox"
   },
@@ -42,6 +43,7 @@
     "class-validator": "^0.14.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "echarts": "^6.1.0",
     "lodash": "^4.17.23",
     "lucide-angular": "^0.575.0",
     "mime-types": "^3.0.2",

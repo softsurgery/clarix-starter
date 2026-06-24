@@ -8,6 +8,7 @@ import { DataSourcesComponent } from '@/pages/data-sources/data-sources.componen
 import { CreateDataSourceComponent } from '@/pages/data-sources/create-data-source/create-data-source.component';
 import { UpdateDataSourceComponent } from '@/pages/data-sources/update-data-source/update-data-source.component';
 import { authGuard } from '@/guards/auth.guard';
+import { ChartsComponent } from '@/pages/charts/charts.component';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,11 @@ export const routes: Routes = [
   {
     path: 'agent',
     component: QAComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'agent-charts',
+    component: ChartsComponent,
     canActivate: [authGuard],
   },
   {

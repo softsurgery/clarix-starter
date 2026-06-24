@@ -30,6 +30,7 @@ import type {
   OllamaGenerateOptions,
 } from './database-query-agent';
 import type { ResponseAgentSessionDto } from './qa-session';
+import type { ChartsDto, ChartsResult } from './charts';
 
 export interface PaginatedMeta {
   page: number;
@@ -163,6 +164,10 @@ export interface QASessionAPI {
   deleteAll(): Promise<{ success: boolean }>;
 }
 
+export interface ChartsAPI {
+  generate(dto: ChartsDto): Promise<ChartsResult>;
+}
+
 export interface ElectronAPI {
   /** Returns the OS platform (e.g., 'linux', 'win32', 'darwin') */
   getPlatform(): string;
@@ -202,6 +207,8 @@ export interface ElectronAPI {
   qa: QAAPI;
   /** Agent Session History */
   qaSession: QASessionAPI;
+  /** AI chart and dashboard generation */
+  charts: ChartsAPI;
 }
 
 declare global {

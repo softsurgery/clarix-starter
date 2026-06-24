@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.chart-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.chart-host {
+  height: 280px;
+  min-height: 280px;
+  width: 100%;
+}
+
+:host-context(.dashboard--fullscreen) .chart-host,
+:host-context(.dashboard:fullscreen) .chart-host {
+  height: 360px;
+  min-height: 360px;
+}
+
+.chart-error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--destructive);
+  border-top: 1px solid var(--border);
+}

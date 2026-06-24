@@ -1,0 +1,120 @@
+<div class="flex flex-col flex-1 h-full overflow-hidden">
+  <div class="flex flex-col flex-1 p-4 overflow-hidden h-full">
+    <div class="flex flex-col gap-3 mb-4 shrink-0">
+      <label class="text-sm font-medium" for="chartsDataSource">Data source</label>
+      <hlm-select
+        class="w-full"
+        id="chartsDataSource"
+        [(ngModel)]="selectedDataSourceId"
+        [disabled]="loading()"
+        [itemToString]="itemToString"
+      >
+        <hlm-select-trigger class="w-full">
+          <hlm-select-value placeholder="Select a data source..." />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (ds of dataSources(); track ds.id) {
+            <hlm-select-item [value]="ds.id">{{ ds.name }} ({{ ds.type }})</hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <div class="flex flex-col flex-1 overflow-y-auto gap-4 min-h-0">
+      @if (loading()) {
+        <div class="flex items-center justify-center flex-1 text-muted-foreground font-sans">
+          Generating SQL and building charts...
+        </div>
+      } @else if (result()) {
+        @if (result()?.error && !result()?.charts?.length) {
+          <p class="text-destructive font-sans">{{ result()?.error }}</p>
+        } @else {
+          <div
+            #dashboardRef
+            class="flex flex-col gap-4 fullscreen:bg-background fullscreen:p-6 fullscreen:overflow-y-auto"
+            [class.dashboard--fullscreen]="isFullscreen()"
+          >
+            <div class="flex items-start justify-between gap-4">
+              @if (result()?.title) {
+                <div class="min-w-0">
+                  <h2 class="text-lg font-semibold font-sans">{{ result()?.title }}</h2>
+                  @if (result()?.description) {
+                    <p class="text-sm text-muted-foreground font-sans mt-1">
+                      {{ result()?.description }}
+                    </p>
+                  }
+                </div>
+              }
+
+              @if (result()?.charts?.length) {
+                <button
+                  hlmBtn
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  class="shrink-0"
+                  (click)="toggleFullscreen()"
+                >
+                  <ng-icon
+                    [name]="isFullscreen() ? 'lucideMinimize2' : 'lucideMaximize2'"
+                    hlmIcon
+                    size="sm"
+                  />
+                </button>
+              }
+            </div>
+
+            @if (result()?.charts?.length) {
+              <div
+                class="grid gap-4 items-start {{
+                  isFullscreen()
+                    ? 'grid-cols-[repeat(auto-fit,minmax(420px,1fr))]'
+                    : result()?.charts?.length === 1
+                      ? 'grid-cols-1'
+                      : 'grid-cols-1 lg:grid-cols-2'
+                }}"
+              >
+                @for (chart of result()?.charts; track $index) {
+                  <div class="flex flex-col gap-2 min-w-0 overflow-visible">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-sans text-sm font-medium">{{ chart.title }}</span>
+                      <span class="text-xs text-muted-foreground font-mono">{{ chart.type }}</span>
+                    </div>
+                    <app-chart-panel
+                      [option]="chart.option"
+                      [error]="chart.error"
+                      [fullscreen]="isFullscreen()"
+                    />
+                    <details class="shrink-0 relative z-1 group">
+                      <summary class="font-sans text-xs text-muted-foreground cursor-pointer">
+                        SQL ({{ chart.rowCount }} rows)
+                      </summary>
+                      <pre
+                        class="mt-2 p-3 rounded-md bg-muted/40 text-xs overflow-auto whitespace-pre-wrap break-words max-h-[min(240px,40vh)] group-open:max-h-[min(480px,60vh)]"
+                        >{{ chart.sql }}</pre
+                      >
+                    </details>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (result()?.error) {
+              <p class="text-destructive font-sans text-sm">{{ result()?.error }}</p>
+            }
+          </div>
+        }
+      } @else {
+        <div class="flex flex-col items-center justify-center flex-1 text-center gap-2 px-4">
+          <span class="text-muted-foreground font-sans">
+            Select a data source and describe the chart or dashboard you want.
+          </span>
+          <span class="text-xs text-muted-foreground font-sans">
+            Try: "Line chart of orders per month" or "Dashboard with revenue trends and top
+            categories"
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

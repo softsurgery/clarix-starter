@@ -32,6 +32,7 @@ import { registerAgentHandlers } from './modules/agent/ipcs/agent.ipc';
 import { registerDataSourceHandlers } from './modules/data-source/ipcs/data-source.ipc';
 import { registerQAHandlers } from './modules/qa/ipcs/qa.ipc';
 import { registerQASessionHandlers } from './modules/qa/ipcs/qa-session.ipc';
+import { registerChartsHandlers } from './modules/charts/ipcs/charts.ipc';
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
 
@@ -76,6 +77,7 @@ app.whenReady().then(async () => {
   registerDataSourceHandlers();
   registerQAHandlers();
   registerQASessionHandlers();
+  registerChartsHandlers();
   createWindow();
 });
 

@@ -25,9 +25,7 @@ export const getUserDataTableObject = ({
     singular: 'User',
     plural: 'Users',
     variant: DataTableVariant.COMMON,
-    createAction: onCreateAction
-      ? { label: 'Create User', action: onCreateAction }
-      : undefined,
+    createAction: onCreateAction ? { label: 'Create User', action: onCreateAction } : undefined,
     enableServerActions: true,
     searchableFields: ['username', 'email', 'firstName', 'lastName'],
     serverQuery,

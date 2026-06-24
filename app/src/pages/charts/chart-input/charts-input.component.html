@@ -1,0 +1,19 @@
+<div class="flex gap-2 p-4 bg-card border-t border-border shadow-sm">
+  <input
+    hlmInput
+    type="text"
+    [(ngModel)]="charts.question"
+    (keydown.enter)="onGenerate()"
+    [disabled]="charts.loading()"
+    placeholder="e.g. Build a sales dashboard with monthly revenue and top products"
+    class="flex-1"
+  />
+  <button
+    hlmBtn
+    variant="outline"
+    (click)="onGenerate()"
+    [disabled]="charts.loading() || !charts.question.trim() || !charts.selectedDataSourceId"
+  >
+    {{ charts.loading() ? 'Generating...' : 'Generate' }}
+  </button>
+</div>
