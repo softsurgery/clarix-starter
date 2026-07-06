@@ -23,9 +23,19 @@ export const data = {
       icon: 'lucideBot',
     },
     {
+      title: 'Q&A History',
+      url: '/agent/history',
+      icon: 'lucideHistory',
+    },
+    {
       title: 'Charts',
       url: '/agent-charts',
       icon: 'lucideChartLine',
+    },
+    {
+      title: 'Charts History',
+      url: '/agent-charts/history',
+      icon: 'lucideHistory',
     },
     {
       title: 'Content Management',

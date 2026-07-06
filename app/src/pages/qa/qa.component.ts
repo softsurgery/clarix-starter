@@ -34,7 +34,7 @@ export class QAComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    this.layoutService.setBreadcrumbs([{ label: 'Agent Testing', url: '/agent' }]);
+    this.layoutService.setBreadcrumbs([{ label: 'Database Q&A', url: '/agent' }]);
     this.layoutService.setIntro(
       'Database Q&A',
       'Ask questions about your connected databases using natural language.',

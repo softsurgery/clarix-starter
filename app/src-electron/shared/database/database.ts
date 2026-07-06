@@ -11,6 +11,7 @@ import { NotificationEntity } from '../notifications/entities/notification.entit
 import { LogEntity } from '../logger/entities/log.entity';
 import { DataSourceEntity } from '../../modules/data-source/entities/data-source.entity';
 import { QASessionEntity } from '../../modules/qa/entities/qa-session.entity';
+import { ChartSessionEntity } from '../../modules/charts/entities/chart-session.entity';
 
 let dataSource: DataSource | null = null;
 
@@ -35,6 +36,7 @@ export async function initializeDatabase(): Promise<DataSource> {
       LogEntity,
       DataSourceEntity,
       QASessionEntity,
+      ChartSessionEntity,
     ],
     synchronize: true,
     // logging: !app.isPackaged,

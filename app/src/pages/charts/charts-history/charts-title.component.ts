@@ -7,16 +7,16 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideHistory } from '@ng-icons/lucide';
 
 @Component({
-  selector: 'app-qa-title',
+  selector: 'app-charts-title',
   standalone: true,
   imports: [CommonModule, RouterLink, ...HlmButtonImports, ...HlmIconImports, NgIcon],
   viewProviders: [provideIcons({ lucideHistory })],
   template: `
     <div class="flex items-center gap-2">
-      <a hlmBtn variant="ghost" size="sm" class="gap-1.5" routerLink="/agent/history">
+      <a hlmBtn variant="ghost" size="sm" class="gap-1.5" routerLink="/agent-charts/history">
         <ng-icon name="lucideHistory" hlmIcon class="size-5" />
       </a>
     </div>
   `,
 })
-export class QATitleComponent {}
+export class ChartsTitleComponent {}

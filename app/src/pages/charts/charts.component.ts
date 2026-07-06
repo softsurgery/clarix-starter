@@ -14,6 +14,7 @@ import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMaximize2, lucideMinimize2 } from '@ng-icons/lucide';
 import { ChartPanelComponent } from './chart-panel/chart-panel.component';
+import { ChartsTitleComponent } from './charts-history/charts-title.component';
 
 @Component({
   selector: 'app-charts',
@@ -61,6 +62,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
       'Ask for charts or full dashboards — AI writes SQL and renders them with Apache ECharts.',
     );
     this.layoutService.setFooter(ChartsInputComponent, { charts: this });
+    this.layoutService.setTitleContent(ChartsTitleComponent, {});
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
     this.loadDataSources();
   }
@@ -73,6 +75,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     this.layoutService.clearBreadcrumbs();
     this.layoutService.clearIntro();
     this.layoutService.clearFooter();
+    this.layoutService.clearTitleContent();
   }
 
   async loadDataSources() {

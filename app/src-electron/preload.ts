@@ -92,6 +92,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   charts: {
     generate: (dto: any) => ipcRenderer.invoke('charts:generate', dto),
   },
+  chartSession: {
+    findAll: () => ipcRenderer.invoke('chartSession:findAll'),
+    findOneById: (id: string) => ipcRenderer.invoke('chartSession:findOneById', id),
+    delete: (id: string) => ipcRenderer.invoke('chartSession:delete', id),
+    deleteAll: () => ipcRenderer.invoke('chartSession:deleteAll'),
+  },
   // ── Agent Session History ────────────────────────────────
   qaSession: {
     findAll: () => ipcRenderer.invoke('qaSession:findAll'),

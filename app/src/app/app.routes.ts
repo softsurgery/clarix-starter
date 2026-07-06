@@ -9,6 +9,10 @@ import { CreateDataSourceComponent } from '@/pages/data-sources/create-data-sour
 import { UpdateDataSourceComponent } from '@/pages/data-sources/update-data-source/update-data-source.component';
 import { authGuard } from '@/guards/auth.guard';
 import { ChartsComponent } from '@/pages/charts/charts.component';
+import { ChartsHistoryComponent } from '@/pages/charts/charts-history/charts-history.component';
+import { ChartsHistoryDetailComponent } from '@/pages/charts/charts-history/charts-history-detail.component';
+import { QAHistoryComponent } from '@/pages/qa/qa-history/qa-history.component';
+import { QAHistoryDetailComponent } from '@/pages/qa/qa-history/qa-history-detail.component';
 
 export const routes: Routes = [
   {
@@ -31,8 +35,28 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'agent/history/:id',
+    component: QAHistoryDetailComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'agent/history',
+    component: QAHistoryComponent,
+    canActivate: [authGuard],
+  },
+  {
     path: 'agent',
     component: QAComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'agent-charts/history/:id',
+    component: ChartsHistoryDetailComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'agent-charts/history',
+    component: ChartsHistoryComponent,
     canActivate: [authGuard],
   },
   {

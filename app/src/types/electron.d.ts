@@ -31,6 +31,7 @@ import type {
 } from './database-query-agent';
 import type { ResponseAgentSessionDto } from './qa-session';
 import type { ChartsDto, ChartsResult } from './charts';
+import type { ResponseChartSessionDto } from './charts-session';
 
 export interface PaginatedMeta {
   page: number;
@@ -168,6 +169,13 @@ export interface ChartsAPI {
   generate(dto: ChartsDto): Promise<ChartsResult>;
 }
 
+export interface ChartSessionAPI {
+  findAll(): Promise<ResponseChartSessionDto[]>;
+  findOneById(id: string): Promise<ResponseChartSessionDto | null>;
+  delete(id: string): Promise<{ success: boolean }>;
+  deleteAll(): Promise<{ success: boolean }>;
+}
+
 export interface ElectronAPI {
   /** Returns the OS platform (e.g., 'linux', 'win32', 'darwin') */
   getPlatform(): string;
@@ -209,6 +217,8 @@ export interface ElectronAPI {
   qaSession: QASessionAPI;
   /** AI chart and dashboard generation */
   charts: ChartsAPI;
+  /** Chart session history */
+  chartSession: ChartSessionAPI;
 }
 
 declare global {

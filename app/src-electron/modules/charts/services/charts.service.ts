@@ -12,6 +12,8 @@ import type {
 import { OllamaService } from '@/modules/agent/services/ollama.service';
 import { extractSqlFromResponse, isReadOnlyQuery } from '@/modules/qa/services/qa.service';
 import { ChartBuilderService, isSupportedChartType } from './chart-builder.service';
+import { ChartSessionService } from './chart-session.service';
+import { ChartSessionStatus } from '../enums/chart-session-status.enum';
 import type {
   AskChartsDto,
   ChartPlan,
@@ -24,18 +26,52 @@ const LOG_PREFIX = '[ChartsAgent]';
 const MAX_RESULT_ROWS = 500;
 const MAX_TABLES_IN_SCHEMA = 50;
 
+export interface ChartSessionChartSummary {
+  title: string;
+  type: string;
+  sql: string;
+  rowCount: number;
+  error?: string;
+  option?: any;
+}
+
 export class ChartsService {
   private readonly dataSourceRepository = new DataSourceRepository();
   private readonly chartBuilder = new ChartBuilderService();
+  private readonly chartSessionService = new ChartSessionService();
 
   constructor(private readonly ollamaService: OllamaService) {}
 
   async generateCharts(dto: AskChartsDto): Promise<ChartsAgentResult> {
+    const startedAt = Date.now();
+    const logCollector: string[] = [];
+    const collectLog = (message: string) =>
+      logCollector.push(`[${new Date().toISOString()}] ${message}`);
+
+    collectLog(`Step 1 — Starting charts pipeline | question: ${dto.question}`);
+    logStep(1, 'Starting charts pipeline', {
+      dataSourceId: dto.dataSourceId,
+      question: dto.question,
+      model: dto.model ?? 'default',
+    });
+
     const dataSource = await this.dataSourceRepository.findOneById(dto.dataSourceId);
 
     if (!dataSource) {
-      return { success: false, error: 'Data source not found' };
+      collectLog('Step 1 — Failed — data source not found');
+      logStep(1, 'Failed — data source not found', { dataSourceId: dto.dataSourceId });
+      const result: ChartsAgentResult = { success: false, error: 'Data source not found' };
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, undefined);
+      return result;
     }
+
+    collectLog(`Step 1 — Data source loaded: ${dataSource.name} (${dataSource.type})`);
+    logStep(1, 'Data source loaded', {
+      name: dataSource.name,
+      type: dataSource.type,
+      host: dataSource.host,
+      database: dataSource.defaultDatabase ?? '(default)',
+    });
 
     const operations = createDatabaseOperationsService(
       dataSource.type,
@@ -43,44 +79,143 @@ export class ChartsService {
     );
 
     try {
+      collectLog('Step 2 — Introspecting database schema...');
+      logStep(2, 'Introspecting database schema...');
+      const schemaStartedAt = Date.now();
       const schemaContext = await this.buildSchemaContext(operations, dataSource.type, dataSource);
+      collectLog(`Step 2 — Schema introspection complete (${Date.now() - schemaStartedAt}ms)`);
+      logStep(2, 'Schema introspection complete', {
+        durationMs: Date.now() - schemaStartedAt,
+        contextLength: schemaContext.length,
+      });
+
+      collectLog('Step 3 — Requesting chart plan from AI agent...');
+      logStep(3, 'Requesting chart plan from AI agent...', {
+        dialect: getDialectName(dataSource.type),
+        temperature: dto.temperature ?? 0.7,
+      });
+      const planStartedAt = Date.now();
       const plan = await this.generateChartPlan(dto, dataSource.type, schemaContext);
+      collectLog(
+        `Step 3 — Chart plan generation complete (${Date.now() - planStartedAt}ms) | ${plan.charts.length} chart(s)`,
+      );
+      logStep(3, 'Chart plan generation complete', {
+        durationMs: Date.now() - planStartedAt,
+        title: plan.title,
+        chartCount: plan.charts.length,
+      });
 
       if (!plan.charts.length) {
-        return { success: false, error: 'AI did not return any charts for this request.' };
+        collectLog('Step 3 — Failed — AI did not return any charts');
+        logStep(3, 'Failed — AI did not return any charts');
+        const result: ChartsAgentResult = {
+          success: false,
+          error: 'AI did not return any charts for this request.',
+        };
+        await this.saveSession(
+          dto,
+          result,
+          Date.now() - startedAt,
+          logCollector,
+          dataSource.name,
+        );
+        return result;
       }
 
+      collectLog(`Step 4 — Executing ${plan.charts.length} chart SQL query/queries...`);
+      logStep(4, 'Executing chart SQL queries...', { chartCount: plan.charts.length });
       const charts: RenderedChart[] = [];
 
-      for (const spec of plan.charts) {
-        charts.push(await this.renderChartSpec(spec, operations));
+      for (const [index, spec] of plan.charts.entries()) {
+        collectLog(`Step 4 — Rendering chart ${index + 1}/${plan.charts.length}: ${spec.title}`);
+        charts.push(await this.renderChartSpec(spec, operations, collectLog));
       }
 
       const hasRenderableChart = charts.some((chart) => !chart.error);
+      const failedCharts = charts.filter((chart) => chart.error).length;
 
-      return {
+      if (hasRenderableChart) {
+        collectLog(
+          `Step 5 — Pipeline finished successfully (${Date.now() - startedAt}ms total, ${charts.length - failedCharts}/${charts.length} charts rendered)`,
+        );
+        logStep(5, 'Pipeline finished successfully', {
+          totalDurationMs: Date.now() - startedAt,
+          chartCount: charts.length,
+          renderedCount: charts.length - failedCharts,
+        });
+      } else {
+        collectLog('Step 5 — Pipeline finished — all chart queries failed');
+        logStep(5, 'Pipeline finished — all chart queries failed', {
+          totalDurationMs: Date.now() - startedAt,
+          chartCount: charts.length,
+        });
+      }
+
+      const result: ChartsAgentResult = {
         success: hasRenderableChart,
         title: plan.title,
         description: plan.description,
         charts,
         error: hasRenderableChart ? undefined : 'All chart queries failed.',
       };
+
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, dataSource.name);
+      return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`${LOG_PREFIX} Pipeline failed`, message);
-      return { success: false, error: message };
+      collectLog(`Pipeline failed — ${message}`);
+      logStep('!', 'Pipeline failed', {
+        totalDurationMs: Date.now() - startedAt,
+        error: message,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      const result: ChartsAgentResult = { success: false, error: message };
+      await this.saveSession(dto, result, Date.now() - startedAt, logCollector, dataSource.name);
+      return result;
     } finally {
+      collectLog('Cleanup — Closing database connection');
+      logStep('cleanup', 'Closing database connection');
       await operations.disconnect().catch(() => undefined);
+    }
+  }
+
+  private async saveSession(
+    dto: AskChartsDto,
+    result: ChartsAgentResult,
+    durationMs: number,
+    logs: string[],
+    dataSourceName?: string,
+  ): Promise<void> {
+    try {
+      const chartsPayload = result.charts?.map(toChartSummary);
+
+      await this.chartSessionService.create({
+        question: dto.question,
+        dataSourceId: dto.dataSourceId,
+        dataSourceName: dataSourceName,
+        status: result.success ? ChartSessionStatus.SUCCESS : ChartSessionStatus.FAILED,
+        title: result.title,
+        description: result.description,
+        chartCount: result.charts?.length,
+        chartsPayload: chartsPayload ? JSON.stringify(chartsPayload) : undefined,
+        error: result.error,
+        durationMs,
+        logs: logs.join('\n'),
+      });
+    } catch (err) {
+      console.error(`${LOG_PREFIX} Failed to save session:`, err);
     }
   }
 
   private async renderChartSpec(
     spec: ChartPlanSpec,
     operations: AbstractDatabaseOperationsService,
+    collectLog: (message: string) => void,
   ): Promise<RenderedChart> {
     const sql = spec.sql.trim();
 
     if (!isReadOnlyQuery(sql)) {
+      collectLog(`Chart "${spec.title}" — validation failed — query is not read-only`);
       return {
         title: spec.title,
         type: spec.type,
@@ -92,7 +227,11 @@ export class ChartsService {
     }
 
     try {
+      const queryStartedAt = Date.now();
       const data = await operations.executeQuery<Record<string, unknown>>(sql);
+      collectLog(
+        `Chart "${spec.title}" — query complete (${Date.now() - queryStartedAt}ms) | ${data.length} rows`,
+      );
       return {
         title: spec.title,
         type: spec.type,
@@ -102,6 +241,7 @@ export class ChartsService {
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Query execution failed';
+      collectLog(`Chart "${spec.title}" — query failed — ${message}`);
       return {
         title: spec.title,
         type: spec.type,
@@ -119,12 +259,30 @@ export class ChartsService {
     dataSource: { defaultDatabase?: string; username: string },
   ): Promise<string> {
     const defaultSchema = getDefaultSchema(type, dataSource);
+    logDetail('Using schema scope', { defaultSchema: defaultSchema ?? '(none)' });
+
     const tables = await operations.getAllTables(defaultSchema);
+    logDetail('Tables discovered', {
+      total: tables.length,
+      names: tables.map((t) => `${t.schema}.${t.name}`),
+    });
+
     const limitedTables = tables.slice(0, MAX_TABLES_IN_SCHEMA);
+    if (tables.length > MAX_TABLES_IN_SCHEMA) {
+      logDetail('Schema truncated for AI context', {
+        included: MAX_TABLES_IN_SCHEMA,
+        omitted: tables.length - MAX_TABLES_IN_SCHEMA,
+      });
+    }
+
     const sections: string[] = [];
 
     for (const table of limitedTables) {
       const columns = await operations.getTableColumns(table.name, table.schema);
+      logDetail('Table columns loaded', {
+        table: `${table.schema}.${table.name}`,
+        columnCount: columns.length,
+      });
       sections.push(formatTableSchema(table, columns));
     }
 
@@ -178,6 +336,11 @@ export class ChartsService {
       '\n',
     );
 
+    logDetail('Sending chart-plan prompt to Ollama', {
+      systemPromptLength: systemPrompt.length,
+      promptLength: prompt.length,
+    });
+
     const response = await this.ollamaService.generate(prompt, {
       system: systemPrompt,
       model: dto.model,
@@ -187,6 +350,17 @@ export class ChartsService {
 
     return parseChartPlan(response);
   }
+}
+
+function toChartSummary(chart: RenderedChart): ChartSessionChartSummary {
+  return {
+    title: chart.title,
+    type: chart.type,
+    sql: chart.sql,
+    rowCount: chart.rowCount,
+    error: chart.error,
+    option: chart.option,
+  };
 }
 
 function parseChartPlan(response: string): ChartPlan {
@@ -283,4 +457,21 @@ function formatTableSchema(table: TableInfo, columns: ColumnInfo[]): string {
   });
 
   return `TABLE ${qualifiedName}(\n${columnLines.join('\n')}\n)`;
+}
+
+function logStep(step: number | string, message: string, detail?: Record<string, unknown>): void {
+  const label = typeof step === 'number' ? `Step ${step}` : String(step);
+  if (detail) {
+    console.log(`${LOG_PREFIX} ${label} — ${message}`, detail);
+  } else {
+    console.log(`${LOG_PREFIX} ${label} — ${message}`);
+  }
+}
+
+function logDetail(message: string, detail?: Record<string, unknown>): void {
+  if (detail) {
+    console.log(`${LOG_PREFIX}   ↳ ${message}`, detail);
+  } else {
+    console.log(`${LOG_PREFIX}   ↳ ${message}`);
+  }
 }
