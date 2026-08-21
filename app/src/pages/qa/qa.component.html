@@ -1,24 +1,51 @@
 <div class="flex flex-col flex-1 h-full overflow-hidden">
   <div class="flex flex-col flex-1 p-4 overflow-hidden h-full">
-    <!-- Data Source -->
-    <div class="flex flex-col gap-3 mb-4 shrink-0">
-      <label class="text-sm font-medium" for="dataSource">Data source</label>
-      <hlm-select
-        class="w-full"
-        id="dataSource"
-        [(ngModel)]="selectedDataSourceId"
-        [disabled]="loading()"
-        [itemToString]="itemToString"
-      >
-        <hlm-select-trigger class="w-full">
-          <hlm-select-value placeholder="Select a data source..." />
-        </hlm-select-trigger>
-        <hlm-select-content *hlmSelectPortal>
-          @for (ds of dataSources(); track ds.id) {
-            <hlm-select-item [value]="ds.id">{{ ds.name }} ({{ ds.type }})</hlm-select-item>
-          }
-        </hlm-select-content>
-      </hlm-select>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 shrink-0">
+      <div class="flex flex-col gap-3">
+        <label class="text-sm font-medium" for="dataSource">Data source</label>
+        <hlm-select
+          class="w-full"
+          id="dataSource"
+          [(ngModel)]="selectedDataSourceId"
+          [disabled]="loading()"
+          [itemToString]="itemToString"
+        >
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Select a data source..." />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            @for (ds of dataSources(); track ds.id) {
+              <hlm-select-item [value]="ds.id">{{ ds.name }} ({{ ds.type }})</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <label class="text-sm font-medium" for="qaModel">Model</label>
+        @if (models().length > 0) {
+          <hlm-select
+            class="w-full"
+            id="qaModel"
+            [(ngModel)]="selectedModel"
+            [disabled]="loading()"
+            [itemToString]="modelToString"
+          >
+            <hlm-select-trigger class="w-full">
+              <hlm-select-value placeholder="Select a model..." />
+            </hlm-select-trigger>
+            <hlm-select-content *hlmSelectPortal>
+              @for (model of models(); track model) {
+                <hlm-select-item [value]="model">{{ model }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </hlm-select>
+        } @else {
+          <p class="text-sm text-muted-foreground">
+            No models reported. The default from Settings will be used.
+          </p>
+        }
+      </div>
     </div>
 
     <!-- Response -->

@@ -24,7 +24,9 @@ export class QAComponent implements OnInit, OnDestroy {
 
   question = '';
   selectedDataSourceId: string | null = null;
+  selectedModel: string | null = null;
   dataSources = signal<ResponseDataSourceDto[]>([]);
+  models = signal<string[]>([]);
   result = signal<QAResult | null>(null);
   loading = signal<boolean>(false);
 
@@ -32,6 +34,8 @@ export class QAComponent implements OnInit, OnDestroy {
     const ds = this.dataSources().find((d) => d.id === value);
     return ds ? `${ds.name} (${ds.type})` : (value?.toString() ?? '');
   };
+
+  modelToString = (value: unknown): string => value?.toString() ?? '';
 
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Database Q&A', url: '/agent' }]);
@@ -42,6 +46,7 @@ export class QAComponent implements OnInit, OnDestroy {
     this.layoutService.setFooter(QAnputComponent, { agent: this });
     this.layoutService.setTitleContent(QATitleComponent, {});
     this.loadDataSources();
+    void this.loadModels();
   }
 
   ngOnDestroy() {
@@ -60,6 +65,18 @@ export class QAComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async loadModels() {
+    try {
+      const result = await firstValueFrom(this.qaService.models());
+      this.models.set(result.models);
+      if (result.models.length > 0 && !this.selectedModel) {
+        this.selectedModel = result.models[0];
+      }
+    } catch {
+      this.models.set([]);
+    }
+  }
+
   async askQuestion() {
     if (!this.question.trim() || !this.selectedDataSourceId || this.loading()) return;
 
@@ -71,6 +88,7 @@ export class QAComponent implements OnInit, OnDestroy {
         this.qaService.askQuestion({
           dataSourceId: this.selectedDataSourceId,
           question: this.question.trim(),
+          ...(this.selectedModel ? { model: this.selectedModel } : {}),
         }),
       );
       this.result.set(response);

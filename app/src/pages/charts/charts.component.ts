@@ -41,7 +41,9 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
   question = '';
   selectedDataSourceId: string | null = null;
+  selectedModel: string | null = null;
   dataSources = signal<ResponseDataSourceDto[]>([]);
+  models = signal<string[]>([]);
   result = signal<ChartsResult | null>(null);
   loading = signal<boolean>(false);
   isFullscreen = signal<boolean>(false);
@@ -55,6 +57,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
     return ds ? `${ds.name} (${ds.type})` : (value?.toString() ?? '');
   };
 
+  modelToString = (value: unknown): string => value?.toString() ?? '';
+
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Charts', url: '/agent-charts' }]);
     this.layoutService.setIntro(
@@ -65,6 +69,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     this.layoutService.setTitleContent(ChartsTitleComponent, {});
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
     this.loadDataSources();
+    void this.loadModels();
   }
 
   ngOnDestroy() {
@@ -90,6 +95,19 @@ export class ChartsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async loadModels() {
+    try {
+      const result = await firstValueFrom(this.chartsService.models());
+      this.models.set(result.models);
+      if (result.models.length > 0 && !this.selectedModel) {
+        this.selectedModel = result.models[0];
+      }
+    } catch (err) {
+      console.error('Failed to load models:', err);
+      this.models.set([]);
+    }
+  }
+
   async generateCharts() {
     if (!this.question.trim() || !this.selectedDataSourceId || this.loading()) return;
 
@@ -101,6 +119,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
         this.chartsService.generate({
           dataSourceId: this.selectedDataSourceId,
           question: this.question.trim(),
+          ...(this.selectedModel ? { model: this.selectedModel } : {}),
         }),
       );
       this.result.set(response);

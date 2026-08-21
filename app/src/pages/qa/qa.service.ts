@@ -9,4 +9,8 @@ export class QAService {
   askQuestion(dto: QADto): Observable<QAResult> {
     return from(window.electronAPI!.qa.askDatabase(dto));
   }
+
+  models(): Observable<{ models: string[] }> {
+    return from(window.electronAPI!.agent.models());
+  }
 }

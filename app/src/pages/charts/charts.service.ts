@@ -9,4 +9,8 @@ export class ChartsService {
   generate(dto: ChartsDto): Observable<ChartsResult> {
     return from(window.electronAPI!.charts.generate(dto));
   }
+
+  models(): Observable<{ models: string[] }> {
+    return from(window.electronAPI!.agent.models());
+  }
 }
