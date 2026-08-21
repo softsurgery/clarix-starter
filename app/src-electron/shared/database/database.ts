@@ -12,6 +12,8 @@ import { LogEntity } from '../logger/entities/log.entity';
 import { DataSourceEntity } from '../../modules/data-source/entities/data-source.entity';
 import { QASessionEntity } from '../../modules/qa/entities/qa-session.entity';
 import { ChartSessionEntity } from '../../modules/charts/entities/chart-session.entity';
+import { ConfigurationNamespaceEntity } from '../configurations/entities/configuration-namespace.entity';
+import { ConfigurationParamEntity } from '../configurations/entities/configuration-param.entity';
 
 let dataSource: DataSource | null = null;
 
@@ -37,6 +39,8 @@ export async function initializeDatabase(): Promise<DataSource> {
       DataSourceEntity,
       QASessionEntity,
       ChartSessionEntity,
+      ConfigurationNamespaceEntity,
+      ConfigurationParamEntity,
     ],
     synchronize: true,
     // logging: !app.isPackaged,

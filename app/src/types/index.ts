@@ -6,5 +6,6 @@ export * from './charts';
 export * from './charts-session';
 export * from './user.types';
 export * from './role.types';
+export * from './configuration';
 export type { PaginatedResponse, PaginatedMeta } from './electron.d';
 export type { FindManyQueryDto, SortOrder } from './find-many-query.types';

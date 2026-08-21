@@ -32,6 +32,11 @@ import type {
 import type { ResponseAgentSessionDto } from './qa-session';
 import type { ChartsDto, ChartsResult } from './charts';
 import type { ResponseChartSessionDto } from './charts-session';
+import type {
+  ResponseConfigurationNamespaceDto,
+  ResponseConfigurationParamDto,
+  UpdateConfigurationParamaterDto,
+} from './configuration';
 
 export interface PaginatedMeta {
   page: number;
@@ -176,6 +181,14 @@ export interface ChartSessionAPI {
   deleteAll(): Promise<{ success: boolean }>;
 }
 
+export interface ConfigurationAPI {
+  findGlobalByName(name: string): Promise<ResponseConfigurationNamespaceDto | null>;
+  findOneById(id: string): Promise<ResponseConfigurationNamespaceDto | null>;
+  findAll(query?: FindManyQueryDto): Promise<ResponseConfigurationNamespaceDto[]>;
+  findAllGlobal(query?: FindManyQueryDto): Promise<ResponseConfigurationNamespaceDto[]>;
+  updateParams(dtos: UpdateConfigurationParamaterDto[]): Promise<ResponseConfigurationParamDto[]>;
+}
+
 export interface ElectronAPI {
   /** Returns the OS platform (e.g., 'linux', 'win32', 'darwin') */
   getPlatform(): string;
@@ -219,6 +232,8 @@ export interface ElectronAPI {
   charts: ChartsAPI;
   /** Chart session history */
   chartSession: ChartSessionAPI;
+  /** Configuration namespaces and parameters */
+  configuration: ConfigurationAPI;
 }
 
 declare global {
