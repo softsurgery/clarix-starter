@@ -1,28 +1,7 @@
 import 'reflect-metadata';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import * as fs from 'fs';
 import { initializeDatabase } from './shared/database/database';
-
-try {
-  const envPath = path.join(app.getAppPath(), '.env');
-  if (fs.existsSync(envPath)) {
-    const envConfig = fs.readFileSync(envPath, 'utf8');
-    envConfig.split('\n').forEach((line) => {
-      const match = line.match(/^([^=:#]+?)[=:](.*)/);
-      if (match) {
-        const key = match[1].trim();
-        const value = match[2].trim();
-        if (!process.env[key]) {
-          process.env[key] = value.replace(/^['"]|['"]$/g, '');
-        }
-      }
-    });
-  }
-} catch (err) {
-  console.warn('Could not load .env file', err);
-}
-
 import { registerStorageHandlers } from './shared/storage/ipcs/storage.ipc';
 import { registerUserHandlers } from './modules/user/ipcs/user.ipc';
 import { registerRoleHandlers } from './modules/role/ipcs/role.ipc';
@@ -34,6 +13,10 @@ import { registerQAHandlers } from './modules/qa/ipcs/qa.ipc';
 import { registerQASessionHandlers } from './modules/qa/ipcs/qa-session.ipc';
 import { registerChartsHandlers } from './modules/charts/ipcs/charts.ipc';
 import { registerChartSessionHandlers } from './modules/charts/ipcs/chart-session.ipc';
+import { registerConfigurationHandlers } from './shared/configurations/ipcs/configuration.ipc';
+import { initSharedOllamaService } from './modules/agent/services/ollama-instance';
+import { initSharedPyRunnerService } from './modules/py/py-instance';
+import { seedGlobalConfigurations } from './modules/agent/ollama-configuration.seeder';
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
 
@@ -68,6 +51,9 @@ app.whenReady().then(async () => {
     await runDevSeed();
   }
   await seedUsersAndRoles();
+  await seedGlobalConfigurations();
+  await initSharedOllamaService();
+  await initSharedPyRunnerService();
 
   registerStorageHandlers();
   registerUserHandlers();
@@ -80,6 +66,7 @@ app.whenReady().then(async () => {
   registerQASessionHandlers();
   registerChartsHandlers();
   registerChartSessionHandlers();
+  registerConfigurationHandlers();
   createWindow();
 });
 

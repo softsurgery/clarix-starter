@@ -62,7 +62,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   // ── Agent ─────────────────────────────────────────────
   agent: {
-    generate: (prompt: string) => ipcRenderer.invoke('agent:generate', prompt),
+    generate: (prompt: string, options?: unknown) =>
+      ipcRenderer.invoke('agent:generate', prompt, options),
     chat: (dto: any) => ipcRenderer.invoke('agent:chat', dto),
     streamChat: (
       dto: any,
@@ -97,6 +98,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     findOneById: (id: string) => ipcRenderer.invoke('chartSession:findOneById', id),
     delete: (id: string) => ipcRenderer.invoke('chartSession:delete', id),
     deleteAll: () => ipcRenderer.invoke('chartSession:deleteAll'),
+  },
+  configuration: {
+    findGlobalByName: (name: string) =>
+      ipcRenderer.invoke('configuration:findGlobalByName', name),
+    findOneById: (id: string) => ipcRenderer.invoke('configuration:findOneById', id),
+    findAll: (query?: any) => ipcRenderer.invoke('configuration:findAll', query),
+    findAllGlobal: (query?: any) => ipcRenderer.invoke('configuration:findAllGlobal', query),
+    updateParams: (dtos: any[]) => ipcRenderer.invoke('configuration:updateParams', dtos),
   },
   // ── Agent Session History ────────────────────────────────
   qaSession: {

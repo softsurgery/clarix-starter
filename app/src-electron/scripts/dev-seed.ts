@@ -1,15 +1,17 @@
-import { app } from 'electron';
-import { getDataSource, initializeDatabase } from '../shared/database/database';
+import { getDataSource } from '../shared/database/database';
+import { seedGlobalConfigurations } from '../modules/agent/ollama-configuration.seeder';
 
 export async function runDevSeed() {
-  const dataSource = getDataSource();
-
- 
+  getDataSource();
+  await seedGlobalConfigurations();
   console.log('[Seed] Seeding complete.');
 }
 
 // Support running as a standalone script
 if (process.argv.some((arg) => arg.includes('dev-seed'))) {
+  const { app } = require('electron');
+  const { initializeDatabase } = require('../shared/database/database');
+
   app.whenReady().then(async () => {
     try {
       await initializeDatabase();

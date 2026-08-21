@@ -9,7 +9,7 @@ import type {
   ColumnInfo,
   TableInfo,
 } from '@/modules/data-source/database-operations/types/database-operations.types';
-import { OllamaService } from '../../agent/services/ollama.service';
+import { AbstractOllamaService } from '../../agent/services/abstract-ollama.service';
 import type {
   AskDatabaseQuestionDto,
   DatabaseQueryAgentResult,
@@ -41,7 +41,7 @@ export class QAService {
   private readonly dataSourceRepository = new DataSourceRepository();
   private readonly qaSessionService = new QASessionService();
 
-  constructor(private readonly ollamaService: OllamaService) {}
+  constructor(private readonly ollamaService: AbstractOllamaService) {}
 
   async askQuestion(dto: AskDatabaseQuestionDto): Promise<DatabaseQueryAgentResult> {
     const startedAt = Date.now();

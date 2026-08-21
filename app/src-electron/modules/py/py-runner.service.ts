@@ -7,9 +7,19 @@ import * as fs from 'fs';
 const execFileAsync = promisify(execFile);
 
 export class PyRunnerService {
+  private configuredPythonPath?: string;
+
+  setPythonPath(path?: string): void {
+    this.configuredPythonPath = path?.trim() || undefined;
+  }
+
   private get interpreterPath() {
+    if (this.configuredPythonPath) {
+      return this.configuredPythonPath;
+    }
+
     const venvPath = path.join(app.getAppPath(), 'assets', 'scripts', 'venv', 'bin', 'python3');
-    return process.env.PYTHON_PATH || (fs.existsSync(venvPath) ? venvPath : 'python3');
+    return fs.existsSync(venvPath) ? venvPath : 'python3';
   }
 
   private readonly scriptsDir = path.join(app.getAppPath(), 'assets', 'scripts');

@@ -9,7 +9,7 @@ import type {
   ColumnInfo,
   TableInfo,
 } from '@/modules/data-source/database-operations/types/database-operations.types';
-import { OllamaService } from '@/modules/agent/services/ollama.service';
+import { AbstractOllamaService } from '@/modules/agent/services/abstract-ollama.service';
 import { extractSqlFromResponse, isReadOnlyQuery } from '@/modules/qa/services/qa.service';
 import { ChartBuilderService, isSupportedChartType } from './chart-builder.service';
 import { ChartSessionService } from './chart-session.service';
@@ -40,7 +40,7 @@ export class ChartsService {
   private readonly chartBuilder = new ChartBuilderService();
   private readonly chartSessionService = new ChartSessionService();
 
-  constructor(private readonly ollamaService: OllamaService) {}
+  constructor(private readonly ollamaService: AbstractOllamaService) {}
 
   async generateCharts(dto: AskChartsDto): Promise<ChartsAgentResult> {
     const startedAt = Date.now();

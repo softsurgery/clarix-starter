@@ -13,6 +13,8 @@ import { ChartsHistoryComponent } from '@/pages/charts/charts-history/charts-his
 import { ChartsHistoryDetailComponent } from '@/pages/charts/charts-history/charts-history-detail.component';
 import { QAHistoryComponent } from '@/pages/qa/qa-history/qa-history.component';
 import { QAHistoryDetailComponent } from '@/pages/qa/qa-history/qa-history-detail.component';
+import { ModelTestComponent } from '@/pages/model-test/model-test.component';
+import { SettingsComponent } from '@/pages/settings/settings.component';
 
 export const routes: Routes = [
   {
@@ -50,13 +52,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'agent-charts/history/:id',
-    component: ChartsHistoryDetailComponent,
+    path: 'model-test',
+    component: ModelTestComponent,
     canActivate: [authGuard],
   },
   {
-    path: 'agent-charts/history',
-    component: ChartsHistoryComponent,
+    path: 'settings',
+    component: SettingsComponent,
     canActivate: [authGuard],
   },
   {
@@ -78,6 +80,19 @@ export const routes: Routes = [
     path: 'data-sources/:id',
     component: UpdateDataSourceComponent,
     canActivate: [authGuard],
+  },
+  {
+    path: 'logging',
+    children: [
+      {
+        path: 'qa',
+        component: QAHistoryComponent,
+      },
+      {
+        path: 'charts',
+        component: ChartsHistoryComponent,
+      },
+    ],
   },
   {
     path: '',

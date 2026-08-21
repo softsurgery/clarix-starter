@@ -23,9 +23,9 @@ export const data = {
       icon: 'lucideBot',
     },
     {
-      title: 'Q&A History',
-      url: '/agent/history',
-      icon: 'lucideHistory',
+      title: 'Model Test',
+      url: '/model-test',
+      icon: 'lucideCpu',
     },
     {
       title: 'Charts',
@@ -33,14 +33,25 @@ export const data = {
       icon: 'lucideChartLine',
     },
     {
-      title: 'Charts History',
-      url: '/agent-charts/history',
-      icon: 'lucideHistory',
-    },
-    {
-      title: 'Content Management',
-      icon: 'lucideFileText',
-      items: [],
+      title: 'Logging',
+      icon: 'lucideLogs',
+      items: [
+        {
+          title: 'Q&A',
+          url: '/logging/qa',
+          icon: 'lucideFileText',
+        },
+        {
+          title: 'Charts',
+          url: '/logging/charts',
+          icon: 'lucideChartLine',
+        },
+        {
+          title: 'System',
+          url: '/logging/system',
+          icon: 'lucideCable',
+        },
+      ],
     },
     {
       title: 'User Management',
@@ -61,6 +72,11 @@ export const data = {
     },
   ],
   navSecondary: [
+    {
+      title: 'Settings',
+      url: '/settings',
+      icon: 'lucideSettings',
+    },
     {
       title: 'Support',
       url: '.',

@@ -3,6 +3,8 @@ import type { FindManyQueryDto } from '@/types/find-many-query.types';
 import { ConfigurationNamespaceService } from '@/shared/configurations/services/configuration-namespace.service';
 import { ConfigurationParamService } from '@/shared/configurations/services/configuration-param.service';
 import { UpdateConfigurationParamaterDto } from '@/shared/configurations/dtos/paramater/update-configuration-paramater.dto';
+import { reloadSharedOllamaService } from '@/modules/agent/services/ollama-instance';
+import { reloadSharedPyRunnerService } from '@/modules/py/py-instance';
 
 export function registerConfigurationHandlers(): void {
   const namespaceService = new ConfigurationNamespaceService();
@@ -33,7 +35,10 @@ export function registerConfigurationHandlers(): void {
   ipcMain.handle(
     'configuration:updateParams',
     async (_event, dtos: UpdateConfigurationParamaterDto[]) => {
-      return paramService.updateBatchParams(dtos);
+      const result = await paramService.updateBatchParams(dtos);
+      await reloadSharedOllamaService();
+      await reloadSharedPyRunnerService();
+      return result;
     },
   );
 }
