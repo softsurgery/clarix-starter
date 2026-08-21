@@ -1,6 +1,6 @@
 import { Client } from 'pg';
 import { AbstractDatabaseOperationsService } from './abstract-database-operations.service';
-import type { ColumnInfo, TableInfo } from './types/database-operations.types';
+import type { ColumnInfo, TableInfo } from '../types/database-operations.types';
 
 export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperationsService {
   private client: Client | null = null;

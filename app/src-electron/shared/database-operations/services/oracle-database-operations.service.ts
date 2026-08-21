@@ -1,6 +1,6 @@
 import oracledb from 'oracledb';
 import { AbstractDatabaseOperationsService } from './abstract-database-operations.service';
-import type { ColumnInfo, TableInfo } from './types/database-operations.types';
+import type { ColumnInfo, TableInfo } from '../types/database-operations.types';
 
 export class OracleDatabaseOperationsService extends AbstractDatabaseOperationsService {
   private connection: oracledb.Connection | null = null;
@@ -100,11 +100,7 @@ export class OracleDatabaseOperationsService extends AbstractDatabaseOperationsS
     params: oracledb.BindParameters = [],
   ): Promise<T[]> {
     const connection = await this.getConnection();
-    const result = await connection.execute(
-      sql,
-      params,
-      { outFormat: oracledb.OUT_FORMAT_OBJECT },
-    );
+    const result = await connection.execute(sql, params, { outFormat: oracledb.OUT_FORMAT_OBJECT });
     return (result.rows ?? []) as T[];
   }
 

@@ -4,7 +4,7 @@ import { DataSourceRepository } from '../repositories/data-source.repository';
 import {
   createDatabaseOperationsService,
   toConnectionConfig,
-} from '../database-operations/database-operations.factory';
+} from '../../../shared/database-operations/database-operations.factory';
 
 export interface TestConnectionResult {
   success: boolean;

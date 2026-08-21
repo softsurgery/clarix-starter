@@ -1,6 +1,6 @@
 import mysql, { Connection } from 'mysql2/promise';
 import { AbstractDatabaseOperationsService } from './abstract-database-operations.service';
-import type { ColumnInfo, TableInfo } from './types/database-operations.types';
+import type { ColumnInfo, TableInfo } from '../types/database-operations.types';
 
 export class MysqlDatabaseOperationsService extends AbstractDatabaseOperationsService {
   protected connection: Connection | null = null;

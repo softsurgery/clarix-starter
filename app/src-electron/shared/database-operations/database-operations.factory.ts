@@ -1,9 +1,9 @@
-import { DataSourceType } from '../enums/data-source-type.enm';
-import { AbstractDatabaseOperationsService } from './abstract-database-operations.service';
-import { MariadbDatabaseOperationsService } from './mariadb-database-operations.service';
-import { MysqlDatabaseOperationsService } from './mysql-database-operations.service';
-import { OracleDatabaseOperationsService } from './oracle-database-operations.service';
-import { PostgresqlDatabaseOperationsService } from './postgresql-database-operations.service';
+import { DataSourceType } from '../../modules/data-source/enums/data-source-type.enm';
+import { AbstractDatabaseOperationsService } from './services/abstract-database-operations.service';
+import { MariadbDatabaseOperationsService } from './services/mariadb-database-operations.service';
+import { MysqlDatabaseOperationsService } from './services/mysql-database-operations.service';
+import { OracleDatabaseOperationsService } from './services/oracle-database-operations.service';
+import { PostgresqlDatabaseOperationsService } from './services/postgresql-database-operations.service';
 import type { DatabaseConnectionConfig } from './types/database-operations.types';
 
 export function createDatabaseOperationsService(

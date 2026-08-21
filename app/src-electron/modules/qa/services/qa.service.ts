@@ -3,12 +3,12 @@ import { DataSourceType } from '@/modules/data-source/enums/data-source-type.enm
 import {
   createDatabaseOperationsService,
   toConnectionConfig,
-} from '@/modules/data-source/database-operations/database-operations.factory';
-import type { AbstractDatabaseOperationsService } from '@/modules/data-source/database-operations/abstract-database-operations.service';
+} from '@/shared/database-operations/database-operations.factory';
+import type { AbstractDatabaseOperationsService } from '@/shared/database-operations/services/abstract-database-operations.service';
 import type {
   ColumnInfo,
   TableInfo,
-} from '@/modules/data-source/database-operations/types/database-operations.types';
+} from '@/shared/database-operations/types/database-operations.types';
 import { AbstractOllamaService } from '../../agent/services/abstract-ollama.service';
 import type {
   AskDatabaseQuestionDto,

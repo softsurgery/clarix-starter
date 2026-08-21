@@ -2,7 +2,7 @@ import type {
   ColumnInfo,
   DatabaseConnectionConfig,
   TableInfo,
-} from './types/database-operations.types';
+} from '../types/database-operations.types';
 
 export abstract class AbstractDatabaseOperationsService {
   constructor(protected readonly config: DatabaseConnectionConfig) {}
