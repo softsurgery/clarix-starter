@@ -20,7 +20,7 @@ export class ConfigurationParamEntity {
   @Column()
   namespaceId: string;
 
-  @Column({ type: 'enum', enum: ParamVariant, default: ParamVariant.STRING })
+  @Column({ type: 'simple-enum', enum: ParamVariant, default: ParamVariant.STRING })
   variant: ParamVariant;
 
   @Column({ type: 'varchar', length: 255, default: '' })
