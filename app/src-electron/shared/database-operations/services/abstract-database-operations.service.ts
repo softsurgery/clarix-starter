@@ -9,6 +9,8 @@ export abstract class AbstractDatabaseOperationsService {
 
   abstract testConnection(): Promise<void>;
 
+  abstract listDatabases(): Promise<string[]>;
+
   abstract getAllTables(schema?: string): Promise<TableInfo[]>;
 
   abstract getTableColumns(tableName: string, schema?: string): Promise<ColumnInfo[]>;

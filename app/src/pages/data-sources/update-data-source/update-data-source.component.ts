@@ -5,9 +5,11 @@ import { toast } from 'ngx-sonner';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { FormBuilderComponent } from '@/components/form-builder/form-builder.component';
 import { LayoutService } from '@/components/layout/layout.service';
+import { GlobalLoaderService } from '@/components/global-loader/global-loader.service';
 import { DataSourceService } from '../data-source.service';
 import { DataSourceRepository } from '@/stores/data-source-state/data-source-state.repository';
 import { getDataSourceUpdateFormStructure } from './utils/update-data-source.form-structure';
+import { applyListedDatabases, toDatabaseSelectOptions } from '../utils/data-source-databases';
 import type { UpdateDataSourceDto } from '@/types';
 import { DataSourceFooterComponent } from '../data-source-footer.component';
 
@@ -23,9 +25,11 @@ export class UpdateDataSourceComponent implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
   private dataSourceService = inject(DataSourceService);
   private store = inject(DataSourceRepository);
+  private globalLoader = inject(GlobalLoaderService);
 
   loading = signal(false);
   saving = signal(false);
+  testing = signal(false);
   formStructure = signal<any>(null);
   private id: string | null = null;
 
@@ -41,8 +45,9 @@ export class UpdateDataSourceComponent implements OnInit, OnDestroy {
     this.layoutService.setFooter(DataSourceFooterComponent, {
       saving: this.saving,
       loading: this.loading,
+      testing: this.testing,
       submitLabel: 'Update Connection',
-      onCancel: () => this.onCancel(),
+      onTest: () => this.onTest(),
       onSave: () => this.onSave(),
     });
 
@@ -74,7 +79,11 @@ export class UpdateDataSourceComponent implements OnInit, OnDestroy {
               ssl: ds.ssl,
               isActive: ds.isActive,
             });
+            if (ds.defaultDatabase) {
+              this.store.set('databaseOptions', toDatabaseSelectOptions([ds.defaultDatabase]));
+            }
             this.formStructure.set(getDataSourceUpdateFormStructure({ store: this.store }));
+            this.loadDatabases();
           } else {
             toast.error('Data source not found');
             this.router.navigate(['/data-sources']);
@@ -87,6 +96,54 @@ export class UpdateDataSourceComponent implements OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  onTest() {
+    this.loadDatabases(true);
+  }
+
+  private loadDatabases(showToast = false) {
+    if (!this.id) return;
+
+    const updateDto = this.store.get<UpdateDataSourceDto>('updateDto');
+    this.testing.set(true);
+    if (showToast) {
+      this.globalLoader.show();
+    }
+    this.dataSourceService
+      .listDatabases({
+        id: this.id,
+        ...updateDto,
+      })
+      .subscribe({
+        next: (result) => {
+          this.testing.set(false);
+          if (showToast) {
+            this.globalLoader.hide();
+          }
+          if (!result.success) {
+            if (showToast) {
+              toast.error(result.message || 'Failed to list databases');
+            }
+            return;
+          }
+          applyListedDatabases(this.store, 'updateDto', result.databases);
+          if (showToast) {
+            toast.success(
+              result.databases.length === 1
+                ? 'Connected — 1 database available'
+                : `Connected — ${result.databases.length} databases available`,
+            );
+          }
+        },
+        error: () => {
+          this.testing.set(false);
+          if (showToast) {
+            this.globalLoader.hide();
+            toast.error('Failed to list databases');
+          }
+        },
+      });
   }
 
   onSave() {
@@ -108,9 +165,5 @@ export class UpdateDataSourceComponent implements OnInit, OnDestroy {
         toast.error('Failed to update data source');
       },
     });
-  }
-
-  onCancel() {
-    this.router.navigate(['/data-sources']);
   }
 }

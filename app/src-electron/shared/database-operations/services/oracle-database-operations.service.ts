@@ -33,6 +33,45 @@ export class OracleDatabaseOperationsService extends AbstractDatabaseOperationsS
     }
   }
 
+  async listDatabases(): Promise<string[]> {
+    const connection = await this.getConnection();
+
+    try {
+      const result = await connection.execute<{ NAME: string }>(
+        `SELECT name
+         FROM v$services
+         WHERE name NOT LIKE 'SYS$%'
+         ORDER BY name`,
+        [],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      const names = [
+        ...new Set((result.rows ?? []).map((row) => row.NAME).filter((name) => !!name)),
+      ];
+      if (names.length > 0) {
+        return names;
+      }
+    } catch {
+      // Insufficient privileges — fall through to the current service name.
+    }
+
+    try {
+      const result = await connection.execute<{ NAME: string }>(
+        `SELECT SYS_CONTEXT('USERENV', 'SERVICE_NAME') AS name FROM dual`,
+        [],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      const name = result.rows?.[0]?.NAME;
+      if (name) {
+        return [name];
+      }
+    } catch {
+      // Ignore and use the configured service if present.
+    }
+
+    return this.config.database ? [this.config.database] : [];
+  }
+
   async getAllTables(schema?: string): Promise<TableInfo[]> {
     const connection = await this.getConnection();
     const owner = schema?.toUpperCase() ?? this.config.username.toUpperCase();

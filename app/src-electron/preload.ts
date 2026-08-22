@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     update: (id: string, data: any) => ipcRenderer.invoke('dataSource:update', id, data),
     delete: (id: string) => ipcRenderer.invoke('dataSource:delete', id),
     testConnection: (id: string) => ipcRenderer.invoke('dataSource:testConnection', id),
+    listDatabases: (input: any) => ipcRenderer.invoke('dataSource:listDatabases', input),
   },
   // ── Agent ─────────────────────────────────────────────
   agent: {

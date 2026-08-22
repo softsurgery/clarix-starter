@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { FindManyQueryDto } from '@/types/find-many-query.types';
 import { DataSourceEntity } from '../entities/data-source.entity';
-import { DataSourceService } from '../services/data-source.service';
+import { DataSourceService, type ListDatabasesInput } from '../services/data-source.service';
 
 export function registerDataSourceHandlers(): void {
   const service = new DataSourceService();
@@ -35,5 +35,9 @@ export function registerDataSourceHandlers(): void {
 
   ipcMain.handle('dataSource:testConnection', async (_event, id: string) => {
     return service.testConnection(id);
+  });
+
+  ipcMain.handle('dataSource:listDatabases', async (_event, input: ListDatabasesInput) => {
+    return service.listDatabases(input);
   });
 }

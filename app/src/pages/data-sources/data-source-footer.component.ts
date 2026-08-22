@@ -8,10 +8,14 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
   imports: [CommonModule, ...HlmButtonImports],
   template: `
     <div class="flex justify-end gap-3 p-4 border-t bg-background">
-      <button hlmBtn variant="outline" (click)="onCancel()" [disabled]="isSaving()">
-        Test Connection
+      <button hlmBtn variant="outline" (click)="onTest()" [disabled]="isSaving() || isTesting()">
+        @if (isTesting()) {
+          Loading databases...
+        } @else {
+          Test Connection
+        }
       </button>
-      <button hlmBtn (click)="onSave()" [disabled]="isSaving() || isLoading()">
+      <button hlmBtn (click)="onSave()" [disabled]="isSaving() || isLoading() || isTesting()">
         @if (isSaving()) {
           Saving...
         } @else {
@@ -24,10 +28,12 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 export class DataSourceFooterComponent {
   @Input() saving!: Signal<boolean>;
   @Input() loading?: Signal<boolean>;
+  @Input() testing?: Signal<boolean>;
   @Input() submitLabel: string = 'Save';
-  @Input() onCancel!: () => void;
+  @Input() onTest!: () => void;
   @Input() onSave!: () => void;
 
   isSaving = computed(() => (this.saving ? this.saving() : false));
   isLoading = computed(() => (this.loading ? this.loading() : false));
+  isTesting = computed(() => (this.testing ? this.testing() : false));
 }

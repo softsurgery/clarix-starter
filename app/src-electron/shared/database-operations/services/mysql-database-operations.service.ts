@@ -29,6 +29,17 @@ export class MysqlDatabaseOperationsService extends AbstractDatabaseOperationsSe
     }
   }
 
+  async listDatabases(): Promise<string[]> {
+    const connection = await this.getConnection();
+    const [rows] = await connection.query(
+      `SELECT SCHEMA_NAME AS name
+       FROM information_schema.SCHEMATA
+       WHERE SCHEMA_NAME NOT IN ('information_schema', 'performance_schema', 'sys')
+       ORDER BY SCHEMA_NAME`,
+    );
+    return (rows as Array<{ name: string }>).map((row) => row.name);
+  }
+
   async getAllTables(schema?: string): Promise<TableInfo[]> {
     const connection = await this.getConnection();
     const database = schema ?? this.config.database;

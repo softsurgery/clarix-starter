@@ -36,6 +36,18 @@ export class PostgresqlDatabaseOperationsService extends AbstractDatabaseOperati
     }
   }
 
+  async listDatabases(): Promise<string[]> {
+    const client = await this.getConnectedClient();
+    const result = await client.query<{ datname: string }>(
+      `SELECT datname
+       FROM pg_database
+       WHERE datistemplate = false
+         AND datallowconn = true
+       ORDER BY datname`,
+    );
+    return result.rows.map((row) => row.datname);
+  }
+
   async getAllTables(schema = 'public'): Promise<TableInfo[]> {
     const client = await this.getConnectedClient();
 

@@ -5,11 +5,13 @@ import {
   NumberFieldProps,
   PasswordFieldProps,
   SelectFieldProps,
+  SelectOption,
   SwitchFieldProps,
   TextFieldProps,
 } from '@/components/form-builder/form-builder.types';
 import { DataSourceRepository } from '@/stores/data-source-state/data-source-state.repository';
 import { DB_TYPE_OPTIONS, DEFAULT_PORTS } from '../../data-sources.constants';
+import { clearListedDatabases } from '../../utils/data-source-databases';
 
 interface DataSourceUpdateFormStructureProps {
   store: DataSourceRepository;
@@ -43,6 +45,7 @@ export const getDataSourceUpdateFormStructure = ({
         store.setNested('updateDto.type', code);
         const port = DEFAULT_PORTS[code];
         store.setNested('updateDto.port', port);
+        clearListedDatabases(store, 'updateDto');
       },
     },
   };
@@ -101,16 +104,17 @@ export const getDataSourceUpdateFormStructure = ({
       },
     },
   };
-  const defaultDatabaseField: DynamicField<TextFieldProps> = {
+  const defaultDatabaseField: DynamicField<SelectFieldProps> = {
     id: 'defaultDatabase',
     label: 'Default Database',
-    variant: FieldVariant.TEXT,
-    description: 'The database to connect to by default',
+    variant: FieldVariant.SELECT,
+    description: 'Test the connection to load databases from the server',
     props: {
-      placeholder: 'my_database',
+      placeholder: 'Select a database',
+      options: store.getNestedObservable<SelectOption[]>('databaseOptions'),
       value: store.getNestedObservable<string>('updateDto.defaultDatabase'),
-      onChange: (value: string) => {
-        store.setNested('updateDto.defaultDatabase', value);
+      onSelectChange: (code: string) => {
+        store.setNested('updateDto.defaultDatabase', code);
       },
     },
   };

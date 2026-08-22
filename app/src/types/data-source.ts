@@ -35,3 +35,20 @@ export interface TestConnectionResult {
   message: string;
   isActive: boolean;
 }
+
+export interface ListDatabasesDto {
+  id?: string;
+  type?: DataSourceType;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  ssl?: boolean;
+  defaultDatabase?: string;
+}
+
+export interface ListDatabasesResult {
+  success: boolean;
+  databases: string[];
+  message?: string;
+}

@@ -3,6 +3,8 @@ import { from, Observable } from 'rxjs';
 import type {
   CreateDataSourceDto,
   FindManyQueryDto,
+  ListDatabasesDto,
+  ListDatabasesResult,
   PaginatedResponse,
   ResponseDataSourceDto,
   TestConnectionResult,
@@ -41,5 +43,9 @@ export class DataSourceService {
 
   testConnection(id: string): Observable<TestConnectionResult> {
     return from(window.electronAPI!.dataSource.testConnection(id));
+  }
+
+  listDatabases(input: ListDatabasesDto): Observable<ListDatabasesResult> {
+    return from(window.electronAPI!.dataSource.listDatabases(input));
   }
 }

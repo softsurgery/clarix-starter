@@ -1,9 +1,11 @@
 import { createStore, withProps } from '@ngneat/elf';
 import { CreateDataSourceDto, UpdateDataSourceDto } from '@/types';
+import { SelectOption } from '@/components/form-builder/form-builder.types';
 
 export interface DataSourceStateProps {
   createDto: CreateDataSourceDto;
   updateDto: UpdateDataSourceDto;
+  databaseOptions: SelectOption[];
   errors: Record<string, string[]>;
 }
 
@@ -29,6 +31,7 @@ export const dataSourceInitialState: DataSourceStateProps = {
     ssl: false,
     isActive: true,
   },
+  databaseOptions: [],
   errors: {},
 };
 

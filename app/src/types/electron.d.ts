@@ -20,6 +20,8 @@ import type {
 import type { CreateRoleDto, ResponseRoleDto, UpdateRoleDto } from './role.types';
 import type {
   CreateDataSourceDto,
+  ListDatabasesDto,
+  ListDatabasesResult,
   ResponseDataSourceDto,
   TestConnectionResult,
   UpdateDataSourceDto,
@@ -146,6 +148,7 @@ export interface DataSourceAPI {
   update(id: string, data: UpdateDataSourceDto): Promise<ResponseDataSourceDto | null>;
   delete(id: string): Promise<ResponseDataSourceDto>;
   testConnection(id: string): Promise<TestConnectionResult>;
+  listDatabases(input: ListDatabasesDto): Promise<ListDatabasesResult>;
 }
 
 export interface AgentAPI {
