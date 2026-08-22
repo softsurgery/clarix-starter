@@ -34,6 +34,9 @@ entities/ → repositories/ → services/ → ipcs/
 ### Frontend pages (`src/pages/<feature>/`)
 
 - Local `*.service.ts` wraps `window.electronAPI` with RxJS `from(...)`
+- Always use the `datatable-builder` abstraction from components; avoid hardcoded HTML tables
+- Forms must take the full main width (do not use max-width containers) and action buttons must be placed in the footer
+- Always use a separate `.html` file for component templates rather than inline templates
 - Reuse `form-builder`, `datatable-builder`, `sheet`, and `dialog` components
 - Elf stores hold form DTO state and auth persistence — not a full entity cache
 

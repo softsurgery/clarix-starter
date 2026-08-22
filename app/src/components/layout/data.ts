@@ -18,23 +18,41 @@ export const data = {
       isActive: true,
     },
     {
-      title: 'Content Management',
-      icon: 'lucideFileText',
-      items: [],
-    },
-    {
-      title: 'AI Testing',
+      title: 'Database Q&A',
       url: '/agent',
       icon: 'lucideBot',
+    },
+    {
+      title: 'Model Test',
+      url: '/model-test',
+      icon: 'lucideCpu',
+    },
+    {
+      title: 'Charts',
+      url: '/agent-charts',
+      icon: 'lucideChartLine',
+    },
+    {
+      title: 'Logging',
+      icon: 'lucideLogs',
       items: [
         {
-          title: 'Agent Test',
-          url: '/agent',
-          icon: 'lucideBot',
+          title: 'Q&A',
+          url: '/logging/qa',
+          icon: 'lucideFileText',
+        },
+        {
+          title: 'Charts',
+          url: '/logging/charts',
+          icon: 'lucideChartLine',
+        },
+        {
+          title: 'System',
+          url: '/logging/system',
+          icon: 'lucideCable',
         },
       ],
     },
-
     {
       title: 'User Management',
       url: '/user-management',
@@ -54,6 +72,11 @@ export const data = {
     },
   ],
   navSecondary: [
+    {
+      title: 'Configurations',
+      url: '/configurations',
+      icon: 'lucideSettings',
+    },
     {
       title: 'Support',
       url: '.',

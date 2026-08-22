@@ -1,12 +1,10 @@
 import { ipcMain } from 'electron';
-import { PyRunnerService } from './py-runner.service';
+import { getSharedPyRunnerService } from './py-instance';
 
 export function registerPyHandlers(): void {
-  const pyRunner = new PyRunnerService();
-
   ipcMain.handle('py:hello-cardinal', async () => {
     try {
-      const result = await pyRunner.runScript('base.py', []);
+      const result = await getSharedPyRunnerService().runScript('base.py', []);
       return { message: 'Success', output: result };
     } catch (error) {
       console.log(error);

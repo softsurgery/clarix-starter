@@ -29,3 +29,9 @@ export interface ResponseDataSourceDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface TestConnectionResult {
+  success: boolean;
+  message: string;
+  isActive: boolean;
+}

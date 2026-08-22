@@ -1,20 +1,18 @@
 import { ipcMain } from 'electron';
-import { OllamaService, OllamaChatMessage, OllamaGenerateOptions } from './ollama.service';
+import { OllamaGenerateOptions } from '../services/ollama.types';
+import { getSharedOllamaService } from '../services/ollama-instance';
 
 export function registerAgentHandlers(): void {
-  const ollamaService = new OllamaService();
-  ollamaService.init(); // Initialize configuration
-
   ipcMain.handle(
     'agent:generate',
     async (_event, prompt: string, options: OllamaGenerateOptions) => {
-      const response = await ollamaService.generate(prompt, options);
+      const response = await getSharedOllamaService().generate(prompt, options);
       return { response };
     },
   );
 
   ipcMain.handle('agent:chat', async (_event, dto: any) => {
-    const message = await ollamaService.chat(dto.messages, {
+    const message = await getSharedOllamaService().chat(dto.messages, {
       model: dto.model,
       temperature: dto.temperature,
       think: dto.think,
@@ -24,7 +22,7 @@ export function registerAgentHandlers(): void {
 
   ipcMain.on('agent:chat-stream', async (event, dto: any) => {
     try {
-      for await (const token of ollamaService.streamChat(dto.messages, {
+      for await (const token of getSharedOllamaService().streamChat(dto.messages, {
         model: dto.model,
         temperature: dto.temperature,
         think: dto.think,
@@ -39,12 +37,12 @@ export function registerAgentHandlers(): void {
   });
 
   ipcMain.handle('agent:health', async () => {
-    const available = await ollamaService.isAvailable();
+    const available = await getSharedOllamaService().isAvailable();
     return { available };
   });
 
   ipcMain.handle('agent:models', async () => {
-    const models = await ollamaService.listModels();
+    const models = await getSharedOllamaService().listModels();
     return { models };
   });
 }

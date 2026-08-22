@@ -20,6 +20,7 @@ export interface DynamicDataTable<T = any> {
   sizes?: number[];
   searchableFields?: string[];
   disablePagination?: boolean;
+  inlinePagination?: boolean;
 }
 
 export interface DataTableServerQuery {

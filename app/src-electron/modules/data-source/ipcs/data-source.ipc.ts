@@ -19,10 +19,7 @@ export function registerDataSourceHandlers(): void {
   });
 
   ipcMain.handle('dataSource:create', async (_event, data: Partial<DataSourceEntity>) => {
-    return service.save({
-      ...data,
-      isActive: true,
-    });
+    return service.save(data);
   });
 
   ipcMain.handle(

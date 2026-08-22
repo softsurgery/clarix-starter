@@ -12,7 +12,7 @@ import { Observable, of, Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, HlmToggleImports, HlmButtonImports],
   template: `
-    <div class="flex flex-col justify-between gap-4 py-4 sm:flex-row sm:items-center">
+    <div class="flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center">
       @if (sizes?.length) {
         <div class="flex flex-row gap-2">
           @for (size of sizes; track size) {

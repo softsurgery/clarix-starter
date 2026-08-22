@@ -1,0 +1,27 @@
+<div class="flex flex-col gap-3 p-4 bg-card border-t border-border shadow-sm">
+  <textarea
+    hlmTextarea
+    [(ngModel)]="modelTest.prompt"
+    [disabled]="modelTest.loading()"
+    placeholder="Enter a test prompt..."
+    rows="3"
+    class="w-full resize-none"
+  ></textarea>
+  <div class="flex justify-end gap-2">
+    <button
+      hlmBtn
+      variant="outline"
+      (click)="modelTest.refreshStatus()"
+      [disabled]="modelTest.loading() || modelTest.checkingStatus()"
+    >
+      Refresh status
+    </button>
+    <button
+      hlmBtn
+      (click)="onRunTest()"
+      [disabled]="modelTest.loading() || !modelTest.prompt.trim()"
+    >
+      {{ modelTest.loading() ? 'Running...' : 'Run test' }}
+    </button>
+  </div>
+</div>

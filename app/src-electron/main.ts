@@ -1,45 +1,45 @@
 import 'reflect-metadata';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import * as fs from 'fs';
+import { applyWindowIcon, registerAppIdentity, resolveAppIconPath } from './app-icon';
 import { initializeDatabase } from './shared/database/database';
-
-try {
-  const envPath = path.join(app.getAppPath(), '.env');
-  if (fs.existsSync(envPath)) {
-    const envConfig = fs.readFileSync(envPath, 'utf8');
-    envConfig.split('\n').forEach((line) => {
-      const match = line.match(/^([^=:#]+?)[=:](.*)/);
-      if (match) {
-        const key = match[1].trim();
-        const value = match[2].trim();
-        if (!process.env[key]) {
-          process.env[key] = value.replace(/^['"]|['"]$/g, '');
-        }
-      }
-    });
-  }
-} catch (err) {
-  console.warn('Could not load .env file', err);
-}
-
 import { registerStorageHandlers } from './shared/storage/ipcs/storage.ipc';
 import { registerUserHandlers } from './modules/user/ipcs/user.ipc';
 import { registerRoleHandlers } from './modules/role/ipcs/role.ipc';
 import { registerAuthHandlers } from './modules/auth/ipcs/auth.ipc';
 import { registerPyHandlers } from './modules/py/py.ipc';
-import { registerAgentHandlers } from './modules/agent/agent.ipc';
+import { registerAgentHandlers } from './modules/agent/ipcs/agent.ipc';
 import { registerDataSourceHandlers } from './modules/data-source/ipcs/data-source.ipc';
+import { registerQAHandlers } from './modules/qa/ipcs/qa.ipc';
+import { registerQASessionHandlers } from './modules/qa/ipcs/qa-session.ipc';
+import { registerChartsHandlers } from './modules/charts/ipcs/charts.ipc';
+import { registerChartSessionHandlers } from './modules/charts/ipcs/chart-session.ipc';
+import { registerConfigurationHandlers } from './shared/configurations/ipcs/configuration.ipc';
+import { initSharedOllamaService } from './modules/agent/services/ollama-instance';
+import { initSharedPyRunnerService } from './modules/py/py-instance';
+import { seedGlobalConfigurations } from './modules/agent/ollama-configuration.seeder';
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
+import { waitForUrl } from './shared/helpers/wait-for-url';
+
+const DEV_SERVER_URL = 'http://localhost:4200';
+
+registerAppIdentity();
 
 // IPC Handlers
 ipcMain.handle('ping', () => 'pong');
 
-function createWindow(): void {
+async function createWindow(): Promise<void> {
+  if (!app.isPackaged) {
+    await waitForUrl(DEV_SERVER_URL);
+  }
+
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'Clarix',
+    show: false,
+    icon: resolveAppIconPath(),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -47,13 +47,17 @@ function createWindow(): void {
     },
   });
 
+  applyWindowIcon(win);
+  win.once('ready-to-show', () => {
+    applyWindowIcon(win);
+    win.show();
+  });
+
   if (!app.isPackaged) {
-    // DEV → Load Angular dev server
-    win.loadURL('http://localhost:4200');
+    await win.loadURL(DEV_SERVER_URL);
     win.webContents.openDevTools();
   } else {
-    // PROD → Load built files
-    win.loadFile(path.join(__dirname, '..', 'dist', 'clarix', 'browser', 'index.html'));
+    await win.loadFile(path.join(__dirname, '..', 'dist', 'clarix', 'browser', 'index.html'));
   }
 }
 
@@ -64,7 +68,9 @@ app.whenReady().then(async () => {
     await runDevSeed();
   }
   await seedUsersAndRoles();
-
+  await seedGlobalConfigurations();
+  await initSharedOllamaService();
+  await initSharedPyRunnerService();
 
   registerStorageHandlers();
   registerUserHandlers();
@@ -73,7 +79,12 @@ app.whenReady().then(async () => {
   registerPyHandlers();
   registerAgentHandlers();
   registerDataSourceHandlers();
-  createWindow();
+  registerQAHandlers();
+  registerQASessionHandlers();
+  registerChartsHandlers();
+  registerChartSessionHandlers();
+  registerConfigurationHandlers();
+  await createWindow();
 });
 
 app.on('window-all-closed', () => {

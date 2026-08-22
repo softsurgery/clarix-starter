@@ -1,0 +1,19 @@
+<div class="flex gap-2 p-4 bg-card border-t border-border shadow-sm">
+  <input
+    hlmInput
+    type="text"
+    [(ngModel)]="agent.question"
+    (keydown.enter)="onAsk()"
+    [disabled]="agent.loading()"
+    [placeholder]="'e.g. How many users signed up last month?'"
+    class="flex-1"
+  />
+  <button
+    hlmBtn
+    variant="outline"
+    (click)="onAsk()"
+    [disabled]="agent.loading() || !agent.question.trim() || !agent.selectedDataSourceId"
+  >
+    {{ agent.loading() ? 'Thinking...' : 'Ask' }}
+  </button>
+</div>

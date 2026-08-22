@@ -16,7 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   /** Send a ping and get a pong from main process */
   ping: (): Promise<string> => ipcRenderer.invoke('ping'),
 
- 
   // ── Storage ─────────────────────────────────────────
   storage: {
     store: (file: any) => ipcRenderer.invoke('storage:store', file),
@@ -63,9 +62,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   // ── Agent ─────────────────────────────────────────────
   agent: {
-    generate: (prompt: string) => ipcRenderer.invoke('agent:generate', prompt),
+    generate: (prompt: string, options?: unknown) =>
+      ipcRenderer.invoke('agent:generate', prompt, options),
     chat: (dto: any) => ipcRenderer.invoke('agent:chat', dto),
-    streamChat: (dto: any, onToken: (token: string, done: boolean) => void, onError: (err: string) => void) => {
+    streamChat: (
+      dto: any,
+      onToken: (token: string, done: boolean) => void,
+      onError: (err: string) => void,
+    ) => {
       ipcRenderer.send('agent:chat-stream', dto);
       const listener = (_event: any, data: any) => {
         if (data.error) {
@@ -82,5 +86,32 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     health: () => ipcRenderer.invoke('agent:health'),
     models: () => ipcRenderer.invoke('agent:models'),
+  },
+  qa: {
+    askDatabase: (dto: any) => ipcRenderer.invoke('agent:askDatabase', dto),
+  },
+  charts: {
+    generate: (dto: any) => ipcRenderer.invoke('charts:generate', dto),
+  },
+  chartSession: {
+    findAll: () => ipcRenderer.invoke('chartSession:findAll'),
+    findOneById: (id: string) => ipcRenderer.invoke('chartSession:findOneById', id),
+    delete: (id: string) => ipcRenderer.invoke('chartSession:delete', id),
+    deleteAll: () => ipcRenderer.invoke('chartSession:deleteAll'),
+  },
+  configuration: {
+    findGlobalByName: (name: string) =>
+      ipcRenderer.invoke('configuration:findGlobalByName', name),
+    findOneById: (id: string) => ipcRenderer.invoke('configuration:findOneById', id),
+    findAll: (query?: any) => ipcRenderer.invoke('configuration:findAll', query),
+    findAllGlobal: (query?: any) => ipcRenderer.invoke('configuration:findAllGlobal', query),
+    updateParams: (dtos: any[]) => ipcRenderer.invoke('configuration:updateParams', dtos),
+  },
+  // ── Agent Session History ────────────────────────────────
+  qaSession: {
+    findAll: () => ipcRenderer.invoke('qaSession:findAll'),
+    findOneById: (id: string) => ipcRenderer.invoke('qaSession:findOneById', id),
+    delete: (id: string) => ipcRenderer.invoke('qaSession:delete', id),
+    deleteAll: () => ipcRenderer.invoke('qaSession:deleteAll'),
   },
 });

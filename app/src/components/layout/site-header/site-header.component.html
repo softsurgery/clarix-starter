@@ -1,19 +1,22 @@
 <header class="bg-background sticky top-0 z-50 flex w-full items-center border-b">
-    <div class="flex h-(--header-height) w-full items-center gap-2 p-4">
-        <button hlmSidebarTrigger></button>
-        <hlm-separator orientation="vertical" class="mr-2" />
-        <nav hlmBreadcrumb class="hidden sm:block">
-            <app-breadcrumb></app-breadcrumb>
-        </nav>
-        <div hlmInputGroup class="w-full sm:ml-auto sm:w-auto">
-            <input hlmInputGroupInput placeholder="Type to search..." />
-            <div hlmInputGroupAddon>
-                <ng-icon name="lucideSearch" />
-            </div>
-        </div>
-        <app-mode-toggle></app-mode-toggle>
-        <button hlmBtn variant="ghost" size="icon" (click)="layoutService.toggleFullscreen()">
-            <lucide-icon [img]="Fullscreen"></lucide-icon>
-        </button>
+  <div class="flex h-(--header-height) w-full items-center gap-2 p-4">
+    <button hlmSidebarTrigger></button>
+    <hlm-separator orientation="vertical" class="mr-2" />
+    <nav hlmBreadcrumb class="hidden sm:block">
+      <app-breadcrumb></app-breadcrumb>
+    </nav>
+    <div hlmInputGroup class="w-full sm:ml-auto sm:w-auto">
+      <input hlmInputGroupInput placeholder="Type to search..." />
+      <div hlmInputGroupAddon>
+        <ng-icon name="lucideSearch" />
+      </div>
     </div>
+    <app-mode-toggle></app-mode-toggle>
+    <button hlmBtn variant="ghost" size="icon" (click)="layoutService.toggleFullscreen()">
+      <lucide-icon
+        class="size-5"
+        [img]="layoutService.getFullscreen() ? Minimize2 : Maximize2"
+      ></lucide-icon>
+    </button>
+  </div>
 </header>

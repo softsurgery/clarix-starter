@@ -5,6 +5,7 @@ import type {
   FindManyQueryDto,
   PaginatedResponse,
   ResponseDataSourceDto,
+  TestConnectionResult,
   UpdateDataSourceDto,
 } from '@/types';
 
@@ -38,7 +39,7 @@ export class DataSourceService {
     return from(window.electronAPI!.dataSource.delete(id));
   }
 
-  testConnection(id: string): Observable<{ success: boolean; message: string }> {
+  testConnection(id: string): Observable<TestConnectionResult> {
     return from(window.electronAPI!.dataSource.testConnection(id));
   }
 }

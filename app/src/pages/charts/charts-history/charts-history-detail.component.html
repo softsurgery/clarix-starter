@@ -1,0 +1,216 @@
+@if (loading()) {
+  <div class="flex items-center justify-center py-16">
+    <div
+      class="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground border-t-primary"
+    ></div>
+  </div>
+} @else if (notFound()) {
+  <div class="flex flex-col items-start gap-4 py-4">
+    <p class="text-sm text-muted-foreground">This session could not be found.</p>
+    <button hlmBtn variant="outline" size="sm" (click)="backToHistory()">
+      <ng-icon name="lucideArrowLeft" hlmIcon size="sm" />
+      Back to history
+    </button>
+  </div>
+} @else if (session(); as session) {
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-2">
+      <button hlmBtn variant="outline" size="sm" (click)="backToHistory()">
+        <ng-icon name="lucideArrowLeft" hlmIcon size="sm" />
+        Back to history
+      </button>
+
+      <button
+        hlmBtn
+        variant="destructive"
+        size="sm"
+        [disabled]="deleting()"
+        (click)="deleteSession()"
+      >
+        <ng-icon name="lucideTrash2" hlmIcon size="sm" />
+        Delete session
+      </button>
+    </div>
+
+    <div class="rounded-lg border bg-card p-4 space-y-4">
+      <div>
+        <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+          Request
+        </p>
+        <p class="text-sm font-semibold leading-snug">{{ session.question }}</p>
+      </div>
+
+      @if (session.title) {
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+            Dashboard Title
+          </p>
+          <p class="text-sm leading-snug">{{ session.title }}</p>
+        </div>
+      }
+
+      @if (session.description) {
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+            Description
+          </p>
+          <p class="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+            {{ session.description }}
+          </p>
+        </div>
+      }
+
+      <div class="flex flex-wrap items-center gap-3">
+        @if (session.status === 'success') {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-[11px] h-5 px-2 bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30"
+          >
+            <ng-icon name="lucideCircleCheck" hlmIcon size="xs" class="mr-0.5" />
+            Success
+          </span>
+        } @else {
+          <span
+            hlmBadge
+            variant="outline"
+            class="text-[11px] h-5 px-2 bg-destructive/10 text-destructive border-destructive/30"
+          >
+            <ng-icon name="lucideCircleX" hlmIcon size="xs" class="mr-0.5" />
+            Failed
+          </span>
+        }
+
+        @if (session.dataSourceName) {
+          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <ng-icon name="lucideDatabase" hlmIcon size="xs" />
+            {{ session.dataSourceName }}
+          </span>
+        }
+
+        <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <ng-icon name="lucideClock" hlmIcon size="xs" />
+          {{ formatDuration(session.durationMs) }}
+        </span>
+
+        @if (session.chartCount != null) {
+          <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <ng-icon name="lucideChartLine" hlmIcon size="xs" />
+            {{ session.chartCount }} chart{{ session.chartCount === 1 ? '' : 's' }}
+          </span>
+        }
+      </div>
+
+      @if (session.error) {
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-1">
+            Error
+          </p>
+          <p class="text-sm text-destructive whitespace-pre-wrap leading-relaxed">
+            {{ session.error }}
+          </p>
+        </div>
+      }
+
+      @if (charts().length) {
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+              Generated Charts
+            </p>
+            <div class="flex items-center bg-muted/50 rounded-md p-1">
+              <button
+                class="px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer"
+                [class]="activeTab() === 'details' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                (click)="setTab('details')"
+              >
+                Details
+              </button>
+              <button
+                class="px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer"
+                [class]="activeTab() === 'preview' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                (click)="setTab('preview')"
+              >
+                Preview
+              </button>
+            </div>
+          </div>
+
+          @if (activeTab() === 'details') {
+            <div class="space-y-4">
+              @for (chart of charts(); track $index) {
+                <div class="rounded-md border bg-card p-3 space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-sm font-medium">{{ chart.title }}</p>
+                    <span class="text-xs font-mono text-muted-foreground">{{ chart.type }}</span>
+                  </div>
+
+                  @if (chart.error) {
+                    <p class="text-sm text-destructive">{{ chart.error }}</p>
+                  } @else {
+                    <p class="text-xs text-muted-foreground">{{ chart.rowCount }} rows returned</p>
+                  }
+
+                  <pre
+                    class="p-3 rounded-md bg-muted/50 text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed border"
+                    >{{ chart.sql }}</pre
+                  >
+                </div>
+              }
+            </div>
+          } @else if (activeTab() === 'preview') {
+            <div class="grid gap-4 items-start {{ layoutService.getFullscreen() ? 'grid-cols-[repeat(auto-fit,minmax(420px,1fr))]' : (charts().length === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2') }}">
+              @for (chart of charts(); track $index) {
+                <div class="flex flex-col gap-2 min-w-0 overflow-visible rounded-md border bg-card p-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="font-sans text-sm font-medium">{{ chart.title }}</span>
+                    <span class="text-xs text-muted-foreground font-mono">{{ chart.type }}</span>
+                  </div>
+                  @if (chart.error) {
+                    <div class="flex items-center justify-center p-8 text-sm text-destructive border border-dashed rounded-md mt-2">
+                      {{ chart.error }}
+                    </div>
+                  } @else {
+                    <app-chart-panel
+                      [option]="chart.option"
+                      [error]="chart.error"
+                      [fullscreen]="layoutService.getFullscreen()"
+                    />
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (session.logs) {
+        <div>
+          <button
+            class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-2"
+            (click)="logsExpanded.set(!logsExpanded())"
+          >
+            <ng-icon
+              [name]="logsExpanded() ? 'lucideChevronUp' : 'lucideChevronDown'"
+              hlmIcon
+              size="xs"
+            />
+            <ng-icon name="lucideScrollText" hlmIcon size="xs" />
+            Pipeline Execution Logs
+          </button>
+
+          @if (logsExpanded()) {
+            <pre
+              class="p-3 rounded-md bg-muted/50 text-[11px] font-mono overflow-x-auto max-h-[50vh] overflow-y-auto whitespace-pre-wrap leading-relaxed border"
+              >{{ session.logs }}</pre
+            >
+          }
+        </div>
+      }
+
+      <div class="text-xs text-muted-foreground/60 pt-1 border-t">
+        Created {{ formatDate(session.createdAt) }}
+      </div>
+    </div>
+  </div>
+}

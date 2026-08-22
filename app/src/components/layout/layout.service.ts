@@ -101,6 +101,10 @@ export class LayoutService {
     this.injectableTitleContent.next({ component: null, inputs: {} });
   }
 
+  getFullscreen(): boolean {
+    return document.fullscreenElement !== null;
+  }
+
   toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();

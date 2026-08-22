@@ -21,8 +21,23 @@ import type { CreateRoleDto, ResponseRoleDto, UpdateRoleDto } from './role.types
 import type {
   CreateDataSourceDto,
   ResponseDataSourceDto,
+  TestConnectionResult,
   UpdateDataSourceDto,
 } from './data-source';
+import type {
+  AskDatabaseQuestionDto,
+  DatabaseQueryAgentResult,
+  OllamaGenerateOptions,
+  OllamaModelOption,
+} from './database-query-agent';
+import type { ResponseAgentSessionDto } from './qa-session';
+import type { ChartsDto, ChartsResult } from './charts';
+import type { ResponseChartSessionDto } from './charts-session';
+import type {
+  ResponseConfigurationNamespaceDto,
+  ResponseConfigurationParamDto,
+  UpdateConfigurationParamaterDto,
+} from './configuration';
 
 export interface PaginatedMeta {
   page: number;
@@ -130,7 +145,7 @@ export interface DataSourceAPI {
   create(data: CreateDataSourceDto): Promise<ResponseDataSourceDto>;
   update(id: string, data: UpdateDataSourceDto): Promise<ResponseDataSourceDto | null>;
   delete(id: string): Promise<ResponseDataSourceDto>;
-  testConnection(id: string): Promise<{ success: boolean; message: string }>;
+  testConnection(id: string): Promise<TestConnectionResult>;
 }
 
 export interface AgentAPI {
@@ -142,7 +157,37 @@ export interface AgentAPI {
     onError: (err: string) => void,
   ): void;
   health(): Promise<{ available: boolean }>;
-  models(): Promise<{ models: string[] }>;
+  models(): Promise<{ models: OllamaModelOption[] }>;
+}
+
+export interface QAAPI {
+  askDatabase(dto: QADto): Promise<QAResult>;
+}
+
+export interface QASessionAPI {
+  findAll(): Promise<ResponseAgentSessionDto[]>;
+  findOneById(id: string): Promise<ResponseAgentSessionDto | null>;
+  delete(id: string): Promise<{ success: boolean }>;
+  deleteAll(): Promise<{ success: boolean }>;
+}
+
+export interface ChartsAPI {
+  generate(dto: ChartsDto): Promise<ChartsResult>;
+}
+
+export interface ChartSessionAPI {
+  findAll(): Promise<ResponseChartSessionDto[]>;
+  findOneById(id: string): Promise<ResponseChartSessionDto | null>;
+  delete(id: string): Promise<{ success: boolean }>;
+  deleteAll(): Promise<{ success: boolean }>;
+}
+
+export interface ConfigurationAPI {
+  findGlobalByName(name: string): Promise<ResponseConfigurationNamespaceDto | null>;
+  findOneById(id: string): Promise<ResponseConfigurationNamespaceDto | null>;
+  findAll(query?: FindManyQueryDto): Promise<ResponseConfigurationNamespaceDto[]>;
+  findAllGlobal(query?: FindManyQueryDto): Promise<ResponseConfigurationNamespaceDto[]>;
+  updateParams(dtos: UpdateConfigurationParamaterDto[]): Promise<ResponseConfigurationParamDto[]>;
 }
 
 export interface ElectronAPI {
@@ -180,6 +225,16 @@ export interface ElectronAPI {
   agent: AgentAPI;
   /** Data Source CRUD operations */
   dataSource: DataSourceAPI;
+  /** QA interactions */
+  qa: QAAPI;
+  /** Agent Session History */
+  qaSession: QASessionAPI;
+  /** AI chart and dashboard generation */
+  charts: ChartsAPI;
+  /** Chart session history */
+  chartSession: ChartSessionAPI;
+  /** Configuration namespaces and parameters */
+  configuration: ConfigurationAPI;
 }
 
 declare global {
