@@ -45,6 +45,7 @@ export enum FieldVariant {
   PASSWORD = 'password',
   SWITCH = 'switch',
   TEXTAREA = 'textarea',
+  SLIDER = 'slider',
   CUSTOM = 'custom',
   EMPTY = 'empty',
   SELECT = 'select',
@@ -95,6 +96,12 @@ export interface TextareaFieldProps extends BaseFieldProps {
   rows?: number;
   cols?: number;
   resize?: 'none' | 'allow';
+}
+
+export interface SliderFieldProps extends BaseFieldProps {
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface SelectOption {
