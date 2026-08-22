@@ -3,15 +3,21 @@ import { RouterOutlet } from "@angular/router";
 import LayoutComponent from "../components/layout/layout.component";
 import { HlmToasterImports } from "@spartan-ng/helm/sonner";
 import { AuthPersistRepository } from "@/stores/auth-persist/auth-persist.repository";
+import { GlobalLoaderComponent } from "@/components/global-loader/global-loader.component";
+import { GlobalLoaderService } from "@/components/global-loader/global-loader.service";
 import { map } from "rxjs/operators";
 @Component({
   selector: "app-root",
-  imports: [RouterOutlet, LayoutComponent, HlmToasterImports],
+  imports: [RouterOutlet, LayoutComponent, HlmToasterImports, GlobalLoaderComponent],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
+  host: {
+    class: "block h-dvh",
+  },
 })
 export class App implements OnInit {
   private authRepository = inject(AuthPersistRepository);
+  protected readonly globalLoader = inject(GlobalLoaderService);
 
   protected readonly title = signal("clarix");
   protected readonly isElectron = signal(false);

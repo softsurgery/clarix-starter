@@ -117,5 +117,9 @@
       @apply bg-background opacity-0;
       transition: opacity 0.3s ease-in-out;
     }
+
+    body.global-loader-active .cdk-overlay-container {
+      pointer-events: none;
+    }
   }
 }
