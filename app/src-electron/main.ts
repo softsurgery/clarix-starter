@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { applyWindowIcon, registerAppIdentity, resolveAppIconPath } from './app-icon';
 import { initializeDatabase } from './shared/database/database';
 import { registerStorageHandlers } from './shared/storage/ipcs/storage.ipc';
 import { registerUserHandlers } from './modules/user/ipcs/user.ipc';
@@ -20,6 +21,8 @@ import { seedGlobalConfigurations } from './modules/agent/ollama-configuration.s
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
 
+registerAppIdentity();
+
 // IPC Handlers
 ipcMain.handle('ping', () => 'pong');
 
@@ -27,11 +30,20 @@ function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'Clarix',
+    show: false,
+    icon: resolveAppIconPath(),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
+  });
+
+  applyWindowIcon(win);
+  win.once('ready-to-show', () => {
+    applyWindowIcon(win);
+    win.show();
   });
 
   if (!app.isPackaged) {
