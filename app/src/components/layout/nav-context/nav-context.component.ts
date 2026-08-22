@@ -43,12 +43,7 @@ export interface Team {
 })
 export class NavContextComponent implements OnInit {
   @Input() teams: Team[] = [
-    { name: "Team Alpha", logo: "/assets/team-alpha-logo.png", plan: "Pro" },
-    {
-      name: "Team Beta",
-      logo: "/assets/team-beta-logo.png",
-      plan: "Free",
-    },
+    { name: "Clarix", logo: "assets/images/clarix-icon.png", plan: "Desktop" },
   ];
   activeTeam = signal<Team | null>(null);
 

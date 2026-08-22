@@ -1,10 +1,11 @@
 <ul hlmSidebarMenu *ngIf="activeTeam()">
     <li hlmSidebarMenuItem>
         <button hlmSidebarMenuButton size="lg" [hlmDropdownMenuTrigger]="menu" align="start" side="right">
-            <div
-                class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <ng-icon [name]="activeTeam()?.logo" size="sm"></ng-icon>
-            </div>
+            <img
+                [src]="activeTeam()?.logo"
+                alt=""
+                class="size-8 rounded-lg object-cover"
+            />
             <div class="grid flex-1 text-left text-sm leading-tight">
                 <span class="truncate font-semibold">{{ activeTeam()?.name }}</span>
                 <span class="truncate text-xs text-muted-foreground">{{ activeTeam()?.plan }}</span>
@@ -18,9 +19,7 @@
     <hlm-dropdown-menu class="min-w-56 rounded-lg mx-4">
         <div hlmDropdownMenuLabel class="text-xs">Teams</div>
         <button hlmDropdownMenuItem *ngFor="let team of teams; let i = index" (click)="setActiveTeam(team)">
-            <div class="flex size-6 items-center justify-center rounded-md border">
-                <ng-icon [name]="team.logo" size="sm"></ng-icon>
-            </div>
+            <img [src]="team.logo" alt="" class="size-6 rounded-md object-cover" />
             <span>{{ team.name }}</span>
             <span hlmDropdownMenuShortcut>{{ getKeyboardShortcut(i) }}</span>
         </button>
