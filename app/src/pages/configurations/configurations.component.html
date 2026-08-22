@@ -10,8 +10,8 @@
     </div>
 
     <!-- Main configurations content -->
-    <div class="flex flex-col flex-1 p-6 overflow-auto gap-4">
-      @if (testStatus()) {
+    <div class="flex flex-col flex-1 p-4 overflow-auto gap-4">
+      <!-- @if (testStatus()) {
         <div class="flex flex-col gap-2 rounded border bg-muted/30 p-4">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium">Connection test</span>
@@ -25,18 +25,14 @@
           @if (testModels().length > 0) {
             <div class="flex flex-wrap gap-2">
               @for (model of testModels(); track model.name) {
-                <span
-                  hlmBadge
-                  [variant]="model.premium ? 'default' : 'outline'"
-                  class="font-mono"
-                >
+                <span hlmBadge [variant]="model.premium ? 'default' : 'outline'" class="font-mono">
                   {{ model.name }} · {{ model.premium ? 'Premium' : 'Free' }}
                 </span>
               }
             </div>
           }
         </div>
-      }
+      } -->
 
       @if (formStructure()) {
         <app-form-builder [structure]="formStructure()!" />
