@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
-import type { QADto, QAResult } from '@/types';
+import type { QADto, QAResult, OllamaModelOption } from '@/types';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ export class QAService {
     return from(window.electronAPI!.qa.askDatabase(dto));
   }
 
-  models(): Observable<{ models: string[] }> {
+  models(): Observable<{ models: OllamaModelOption[] }> {
     return from(window.electronAPI!.agent.models());
   }
 }

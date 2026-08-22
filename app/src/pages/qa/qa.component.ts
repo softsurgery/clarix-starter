@@ -5,15 +5,16 @@ import { firstValueFrom } from 'rxjs';
 import { LayoutService } from '@/components/layout/layout.service';
 import { DataSourceService } from '@/pages/data-sources/data-source.service';
 import { QAService } from '@/pages/qa/qa.service';
-import type { QAResult, ResponseDataSourceDto } from '@/types';
+import type { QAResult, ResponseDataSourceDto, OllamaModelOption } from '@/types';
 import { QAnputComponent } from './qa-input/qa-input.component';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { QATitleComponent } from './qa-history/qa-title.component';
 
 @Component({
   selector: 'app-agent',
-  imports: [CommonModule, FormsModule, BrnSelectImports, HlmSelectImports],
+  imports: [CommonModule, FormsModule, BrnSelectImports, HlmSelectImports, ...HlmBadgeImports],
   templateUrl: './qa.component.html',
   styleUrls: ['./qa.component.css'],
 })
@@ -26,7 +27,7 @@ export class QAComponent implements OnInit, OnDestroy {
   selectedDataSourceId: string | null = null;
   selectedModel: string | null = null;
   dataSources = signal<ResponseDataSourceDto[]>([]);
-  models = signal<string[]>([]);
+  models = signal<OllamaModelOption[]>([]);
   result = signal<QAResult | null>(null);
   loading = signal<boolean>(false);
 
@@ -35,7 +36,12 @@ export class QAComponent implements OnInit, OnDestroy {
     return ds ? `${ds.name} (${ds.type})` : (value?.toString() ?? '');
   };
 
-  modelToString = (value: unknown): string => value?.toString() ?? '';
+  modelToString = (value: unknown): string => {
+    const name = value?.toString() ?? '';
+    const model = this.models().find((item) => item.name === name);
+    if (!model) return name;
+    return `${model.name} · ${model.premium ? 'Premium' : 'Free'}`;
+  };
 
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Database Q&A', url: '/agent' }]);
@@ -70,7 +76,7 @@ export class QAComponent implements OnInit, OnDestroy {
       const result = await firstValueFrom(this.qaService.models());
       this.models.set(result.models);
       if (result.models.length > 0 && !this.selectedModel) {
-        this.selectedModel = result.models[0];
+        this.selectedModel = result.models[0].name;
       }
     } catch {
       this.models.set([]);

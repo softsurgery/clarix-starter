@@ -5,6 +5,11 @@ import type {
   OllamaChatResponse,
   OllamaGenerateOptions,
 } from './ollama.types';
+import {
+  fetchCloudRequiredPlans,
+  toListedOllamaModel,
+  type OllamaListedModel,
+} from './ollama-model.utils';
 
 export abstract class AbstractOllamaService {
   constructor(
@@ -98,14 +103,24 @@ export abstract class AbstractOllamaService {
     }
   }
 
-  async listModels(): Promise<string[]> {
+  async listModels(): Promise<OllamaListedModel[]> {
     try {
-      const data = await this.request<{ models: { name: string }[] }>(
-        '/api/tags',
-        undefined,
-        'GET',
+      const [data, requiredPlans] = await Promise.all([
+        this.request<{
+          models: {
+            name: string;
+            size?: number;
+            remote_host?: string;
+            remote_model?: string;
+            premium?: boolean;
+            required_plan?: string;
+          }[];
+        }>('/api/tags', undefined, 'GET'),
+        fetchCloudRequiredPlans(),
+      ]);
+      return data.models.map((model) =>
+        toListedOllamaModel(model, this.mode === 'cloud', requiredPlans),
       );
-      return data.models.map((m) => m.name);
     } catch {
       return [];
     }

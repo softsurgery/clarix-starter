@@ -21,3 +21,8 @@ export interface OllamaGenerateOptions {
   stream?: boolean;
   think?: boolean;
 }
+
+export interface OllamaModelOption {
+  name: string;
+  premium: boolean;
+}

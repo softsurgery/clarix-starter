@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { LayoutService } from '@/components/layout/layout.service';
 import { ModelTestService } from '@/pages/model-test/model-test.service';
 import { ModelTestInputComponent } from '@/pages/model-test/model-test-input.component';
+import type { OllamaModelOption } from '@/types';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -22,13 +23,18 @@ export class ModelTestComponent implements OnInit, OnDestroy {
   prompt = 'Say hello in one short sentence.';
   selectedModel: string | null = null;
   available = signal<boolean | null>(null);
-  models = signal<string[]>([]);
+  models = signal<OllamaModelOption[]>([]);
   response = signal<string | null>(null);
   error = signal<string | null>(null);
   loading = signal<boolean>(false);
   checkingStatus = signal<boolean>(true);
 
-  itemToString = (value: unknown): string => value?.toString() ?? '';
+  itemToString = (value: unknown): string => {
+    const name = value?.toString() ?? '';
+    const model = this.models().find((item) => item.name === name);
+    if (!model) return name;
+    return `${model.name} · ${model.premium ? 'Premium' : 'Free'}`;
+  };
 
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Model Test', url: '/model-test' }]);
@@ -60,7 +66,7 @@ export class ModelTestComponent implements OnInit, OnDestroy {
       this.models.set(modelList.models);
 
       if (modelList.models.length > 0 && !this.selectedModel) {
-        this.selectedModel = modelList.models[0];
+        this.selectedModel = modelList.models[0].name;
       }
     } catch (err: unknown) {
       this.available.set(false);

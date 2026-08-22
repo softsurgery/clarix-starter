@@ -6,6 +6,11 @@ import type {
   OllamaChatOptions,
   OllamaGenerateOptions,
 } from './ollama.types';
+import {
+  fetchCloudRequiredPlans,
+  toListedOllamaModel,
+  type OllamaListedModel,
+} from './ollama-model.utils';
 
 /** Direct cloud API host — see https://docs.ollama.com/cloud */
 const CLOUD_BASE_URL = 'https://ollama.com';
@@ -132,10 +137,13 @@ export class OllamaCloudService extends AbstractOllamaService {
     }
   }
 
-  async listModels(): Promise<string[]> {
+  async listModels(): Promise<OllamaListedModel[]> {
     try {
-      const data = await this.client.list();
-      return data.models.map((model) => model.name);
+      const [data, requiredPlans] = await Promise.all([
+        this.client.list(),
+        fetchCloudRequiredPlans(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      ]);
+      return data.models.map((model) => toListedOllamaModel(model, true, requiredPlans));
     } catch {
       return [];
     }

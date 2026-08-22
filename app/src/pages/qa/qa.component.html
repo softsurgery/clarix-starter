@@ -35,9 +35,20 @@
               <hlm-select-value placeholder="Select a model..." />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
-              @for (model of models(); track model) {
-                <hlm-select-item [value]="model">{{ model }}</hlm-select-item>
-              }
+            @for (model of models(); track model.name) {
+              <hlm-select-item [value]="model.name">
+                <span class="flex min-w-0 items-center gap-2">
+                  <span class="truncate">{{ model.name }}</span>
+                  <span
+                    hlmBadge
+                    [variant]="model.premium ? 'default' : 'outline'"
+                    class="text-[10px] h-4 px-1.5"
+                  >
+                    {{ model.premium ? 'Premium' : 'Free' }}
+                  </span>
+                </span>
+              </hlm-select-item>
+            }
             </hlm-select-content>
           </hlm-select>
         } @else {

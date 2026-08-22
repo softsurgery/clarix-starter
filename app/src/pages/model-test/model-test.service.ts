@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
-import type { OllamaGenerateOptions } from '@/types';
+import type { OllamaGenerateOptions, OllamaModelOption } from '@/types';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ export class ModelTestService {
     return from(window.electronAPI!.agent.health());
   }
 
-  models(): Observable<{ models: string[] }> {
+  models(): Observable<{ models: OllamaModelOption[] }> {
     return from(window.electronAPI!.agent.models());
   }
 

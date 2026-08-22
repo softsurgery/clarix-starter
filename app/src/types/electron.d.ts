@@ -28,6 +28,7 @@ import type {
   AskDatabaseQuestionDto,
   DatabaseQueryAgentResult,
   OllamaGenerateOptions,
+  OllamaModelOption,
 } from './database-query-agent';
 import type { ResponseAgentSessionDto } from './qa-session';
 import type { ChartsDto, ChartsResult } from './charts';
@@ -156,7 +157,7 @@ export interface AgentAPI {
     onError: (err: string) => void,
   ): void;
   health(): Promise<{ available: boolean }>;
-  models(): Promise<{ models: string[] }>;
+  models(): Promise<{ models: OllamaModelOption[] }>;
 }
 
 export interface QAAPI {

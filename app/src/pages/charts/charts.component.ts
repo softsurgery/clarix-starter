@@ -5,11 +5,12 @@ import { firstValueFrom } from 'rxjs';
 import { LayoutService } from '@/components/layout/layout.service';
 import { DataSourceService } from '@/pages/data-sources/data-source.service';
 import { ChartsService } from '@/pages/charts/charts.service';
-import type { ChartsResult, ResponseDataSourceDto } from '@/types';
+import type { ChartsResult, ResponseDataSourceDto, OllamaModelOption } from '@/types';
 import { ChartsInputComponent } from './chart-input/charts-input.component';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMaximize2, lucideMinimize2 } from '@ng-icons/lucide';
@@ -24,6 +25,7 @@ import { ChartsTitleComponent } from './charts-history/charts-title.component';
     BrnSelectImports,
     HlmSelectImports,
     ...HlmButtonImports,
+    ...HlmBadgeImports,
     ...HlmIconImports,
     NgIcon,
     ChartPanelComponent,
@@ -43,7 +45,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
   selectedDataSourceId: string | null = null;
   selectedModel: string | null = null;
   dataSources = signal<ResponseDataSourceDto[]>([]);
-  models = signal<string[]>([]);
+  models = signal<OllamaModelOption[]>([]);
   result = signal<ChartsResult | null>(null);
   loading = signal<boolean>(false);
   isFullscreen = signal<boolean>(false);
@@ -57,7 +59,12 @@ export class ChartsComponent implements OnInit, OnDestroy {
     return ds ? `${ds.name} (${ds.type})` : (value?.toString() ?? '');
   };
 
-  modelToString = (value: unknown): string => value?.toString() ?? '';
+  modelToString = (value: unknown): string => {
+    const name = value?.toString() ?? '';
+    const model = this.models().find((item) => item.name === name);
+    if (!model) return name;
+    return `${model.name} · ${model.premium ? 'Premium' : 'Free'}`;
+  };
 
   ngOnInit() {
     this.layoutService.setBreadcrumbs([{ label: 'Charts', url: '/agent-charts' }]);
@@ -100,7 +107,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
       const result = await firstValueFrom(this.chartsService.models());
       this.models.set(result.models);
       if (result.models.length > 0 && !this.selectedModel) {
-        this.selectedModel = result.models[0];
+        this.selectedModel = result.models[0].name;
       }
     } catch (err) {
       console.error('Failed to load models:', err);
