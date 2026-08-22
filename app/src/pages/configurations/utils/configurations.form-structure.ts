@@ -7,12 +7,15 @@ import {
   NumberFieldProps,
   PasswordFieldProps,
   SelectFieldProps,
+  SliderFieldProps,
   SwitchFieldProps,
+  TextareaFieldProps,
   TextFieldProps,
 } from '@/components/form-builder/form-builder.types';
 import { ConfigurationsRepository } from '@/stores/configurations-state/configurations-state.repository';
 import type {
   ParamVariant,
+  ParamViewMode,
   ResponseConfigurationNamespaceDto,
   ResponseConfigurationParamDto,
 } from '@/types';
@@ -45,6 +48,15 @@ function chunk<T>(items: T[], size: number): T[][] {
 function toFieldVariant(param: ResponseConfigurationParamDto): FieldVariant {
   if (SECRET_PARAM_PATTERN.test(param.name ?? '')) {
     return FieldVariant.PASSWORD;
+  }
+
+  const viewModeMap: Partial<Record<ParamViewMode, FieldVariant>> = {
+    slider: FieldVariant.SLIDER,
+    textarea: FieldVariant.TEXTAREA,
+  };
+
+  if (param.viewMode && viewModeMap[param.viewMode]) {
+    return viewModeMap[param.viewMode]!;
   }
 
   const variantMap: Record<ParamVariant, FieldVariant> = {
@@ -94,6 +106,43 @@ function toField(store: ConfigurationsRepository, param: ResponseConfigurationPa
         value: store.getNestedObservable<string>(path),
         onChange: (value: string) => {
           store.setNested(path, String(value ?? ''));
+        },
+      },
+    };
+    return field;
+  }
+
+  if (variant === FieldVariant.SLIDER) {
+    const field: DynamicField<SliderFieldProps> = {
+      id: String(param.id),
+      label,
+      description,
+      variant,
+      props: {
+        value: store.getNestedObservable<string>(path),
+        min: param.min ?? 0,
+        max: param.max ?? 1,
+        step: param.step ?? 0.1,
+        onChange: (value: string) => {
+          store.setNested(path, String(value ?? ''));
+        },
+      },
+    };
+    return field;
+  }
+
+  if (variant === FieldVariant.TEXTAREA) {
+    const field: DynamicField<TextareaFieldProps> = {
+      id: String(param.id),
+      label,
+      description,
+      variant,
+      props: {
+        placeholder: label,
+        rows: 4,
+        value: store.getNestedObservable<string>(path),
+        onChange: (value: string) => {
+          store.setNested(path, value);
         },
       },
     };

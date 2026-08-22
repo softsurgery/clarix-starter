@@ -1,4 +1,5 @@
 export type ParamVariant = 'string' | 'number' | 'boolean' | 'select';
+export type ParamViewMode = 'default' | 'slider' | 'textarea';
 
 export interface ResponseConfigurationParamDto {
   id: number;
@@ -6,7 +7,11 @@ export interface ResponseConfigurationParamDto {
   description?: string;
   namespaceId: string;
   variant: ParamVariant;
+  viewMode?: ParamViewMode;
   value?: string;
+  min?: number;
+  max?: number;
+  step?: number;
   options?: { label: string; value: string }[];
 }
 
