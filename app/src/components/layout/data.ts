@@ -73,8 +73,8 @@ export const data = {
   ],
   navSecondary: [
     {
-      title: 'Settings',
-      url: '/settings',
+      title: 'Configurations',
+      url: '/configurations',
       icon: 'lucideSettings',
     },
     {

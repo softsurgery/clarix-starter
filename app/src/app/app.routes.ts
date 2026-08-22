@@ -10,11 +10,10 @@ import { UpdateDataSourceComponent } from '@/pages/data-sources/update-data-sour
 import { authGuard } from '@/guards/auth.guard';
 import { ChartsComponent } from '@/pages/charts/charts.component';
 import { ChartsHistoryComponent } from '@/pages/charts/charts-history/charts-history.component';
-import { ChartsHistoryDetailComponent } from '@/pages/charts/charts-history/charts-history-detail.component';
 import { QAHistoryComponent } from '@/pages/qa/qa-history/qa-history.component';
 import { QAHistoryDetailComponent } from '@/pages/qa/qa-history/qa-history-detail.component';
 import { ModelTestComponent } from '@/pages/model-test/model-test.component';
-import { SettingsComponent } from '@/pages/settings/settings.component';
+import { ConfigurationsComponent } from '@/pages/configurations/configurations.component';
 
 export const routes: Routes = [
   {
@@ -57,8 +56,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'settings',
-    component: SettingsComponent,
+    path: 'configurations',
+    component: ConfigurationsComponent,
     canActivate: [authGuard],
   },
   {

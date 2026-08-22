@@ -10,15 +10,15 @@ import {
   SwitchFieldProps,
   TextFieldProps,
 } from '@/components/form-builder/form-builder.types';
-import { SettingsRepository } from '@/stores/settings-state/settings-state.repository';
+import { ConfigurationsRepository } from '@/stores/configurations-state/configurations-state.repository';
 import type {
   ParamVariant,
   ResponseConfigurationNamespaceDto,
   ResponseConfigurationParamDto,
 } from '@/types';
 
-interface SettingsFormStructureProps {
-  store: SettingsRepository;
+interface ConfigurationsFormStructureProps {
+  store: ConfigurationsRepository;
   namespaces: ResponseConfigurationNamespaceDto[];
 }
 
@@ -57,10 +57,7 @@ function toFieldVariant(param: ResponseConfigurationParamDto): FieldVariant {
   return variantMap[param.variant] ?? FieldVariant.TEXT;
 }
 
-function toField(
-  store: SettingsRepository,
-  param: ResponseConfigurationParamDto,
-): DynamicField {
+function toField(store: ConfigurationsRepository, param: ResponseConfigurationParamDto): DynamicField {
   const path = `values.${param.id}`;
   const variant = toFieldVariant(param);
   const label = formatLabel(param.name);
@@ -152,10 +149,10 @@ function toField(
   return field;
 }
 
-export const getSettingsFormStructure = ({
+export const getConfigurationsFormStructure = ({
   store,
   namespaces,
-}: SettingsFormStructureProps): DynamicForm => {
+}: ConfigurationsFormStructureProps): DynamicForm => {
   const grids: DynamicGrid[] = [...namespaces]
     .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
     .map((namespace) => {
@@ -171,7 +168,7 @@ export const getSettingsFormStructure = ({
     });
 
   return {
-    title: 'Application Settings',
+    title: 'Application Configurations',
     description: 'Configure application parameters stored in the configuration database.',
     isHeaderHidden: true,
     grids,

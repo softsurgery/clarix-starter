@@ -4,12 +4,13 @@ import type {
   ResponseConfigurationNamespaceDto,
   ResponseConfigurationParamDto,
   UpdateConfigurationParamaterDto,
+  OllamaModelOption,
 } from '@/types';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SettingsService {
+export class ConfigurationsService {
   findAllGlobal(): Observable<ResponseConfigurationNamespaceDto[]> {
     return from(window.electronAPI!.configuration.findAllGlobal());
   }
@@ -20,7 +21,7 @@ export class SettingsService {
     return from(window.electronAPI!.configuration.updateParams(dtos));
   }
 
-  testOllama(): Observable<{ available: boolean; models: string[] }> {
+  testOllama(): Observable<{ available: boolean; models: OllamaModelOption[] }> {
     return forkJoin({
       health: from(window.electronAPI!.agent.health()),
       models: from(window.electronAPI!.agent.models()),

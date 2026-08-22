@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 @Component({
-  selector: 'app-settings-footer',
+  selector: 'app-configurations-footer',
   standalone: true,
   imports: [CommonModule, ...HlmButtonImports],
   template: `
@@ -19,13 +19,13 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
         @if (isSaving()) {
           Saving...
         } @else {
-          Save Settings
+          Save Configurations
         }
       </button>
     </div>
   `,
 })
-export class SettingsFooterComponent {
+export class ConfigurationsFooterComponent {
   @Input() saving!: Signal<boolean>;
   @Input() testing!: Signal<boolean>;
   @Input() onTest!: () => void;
