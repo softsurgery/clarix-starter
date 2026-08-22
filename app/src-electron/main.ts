@@ -20,13 +20,20 @@ import { initSharedPyRunnerService } from './modules/py/py-instance';
 import { seedGlobalConfigurations } from './modules/agent/ollama-configuration.seeder';
 import { runDevSeed } from './scripts/dev-seed';
 import { seedUsersAndRoles } from './scripts/seed-users';
+import { waitForUrl } from './shared/helpers/wait-for-url';
+
+const DEV_SERVER_URL = 'http://localhost:4200';
 
 registerAppIdentity();
 
 // IPC Handlers
 ipcMain.handle('ping', () => 'pong');
 
-function createWindow(): void {
+async function createWindow(): Promise<void> {
+  if (!app.isPackaged) {
+    await waitForUrl(DEV_SERVER_URL);
+  }
+
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -47,12 +54,10 @@ function createWindow(): void {
   });
 
   if (!app.isPackaged) {
-    // DEV → Load Angular dev server
-    win.loadURL('http://localhost:4200');
+    await win.loadURL(DEV_SERVER_URL);
     win.webContents.openDevTools();
   } else {
-    // PROD → Load built files
-    win.loadFile(path.join(__dirname, '..', 'dist', 'clarix', 'browser', 'index.html'));
+    await win.loadFile(path.join(__dirname, '..', 'dist', 'clarix', 'browser', 'index.html'));
   }
 }
 
@@ -79,7 +84,7 @@ app.whenReady().then(async () => {
   registerChartsHandlers();
   registerChartSessionHandlers();
   registerConfigurationHandlers();
-  createWindow();
+  await createWindow();
 });
 
 app.on('window-all-closed', () => {
