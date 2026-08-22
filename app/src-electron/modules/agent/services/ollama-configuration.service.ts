@@ -41,7 +41,6 @@ export class OllamaConfigurationService {
       mode: this.getParamValue(namespace, OLLAMA_PARAMS.MODE) as OllamaModeValue,
       apiKey: this.getParamValue(namespace, OLLAMA_PARAMS.API_KEY) || undefined,
       baseUrl: this.getParamValue(namespace, OLLAMA_PARAMS.BASE_URL) || 'http://localhost:11434',
-      model: this.getParamValue(namespace, OLLAMA_PARAMS.MODEL) || 'llama3',
       temperature: Number(this.getParamValue(namespace, OLLAMA_PARAMS.TEMPERATURE)) || 0.7,
       timeout: Number(this.getParamValue(namespace, OLLAMA_PARAMS.TIMEOUT)) || 60000,
     };

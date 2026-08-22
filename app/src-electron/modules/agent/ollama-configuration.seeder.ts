@@ -1,6 +1,8 @@
 import { ConfigurationNamespaceService } from '../../shared/configurations/services/configuration-namespace.service';
 import { ConfigurationParamService } from '../../shared/configurations/services/configuration-param.service';
 import { ParamVariant } from '../../shared/configurations/enums/param-variant.enum';
+import { ParamViewMode } from '../../shared/configurations/enums/param-view-mode.enum';
+import { ConfigurationNamespaceEntity } from '../../shared/configurations/entities/configuration-namespace.entity';
 import {
   OLLAMA_MODE_OPTIONS,
   OLLAMA_NAMESPACE,
@@ -13,8 +15,12 @@ interface SeedParamDefinition {
   name: string;
   description: string;
   variant: ParamVariant;
+  viewMode?: ParamViewMode;
   value: string;
   options?: { label: string; value: string }[];
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 function buildOllamaDefaults(): SeedParamDefinition[] {
@@ -39,16 +45,14 @@ function buildOllamaDefaults(): SeedParamDefinition[] {
       value: 'http://localhost:11434',
     },
     {
-      name: OLLAMA_PARAMS.MODEL,
-      description: 'Default Ollama model',
-      variant: ParamVariant.STRING,
-      value: 'llama3',
-    },
-    {
       name: OLLAMA_PARAMS.TEMPERATURE,
       description: 'Default model temperature',
       variant: ParamVariant.NUMBER,
+      viewMode: ParamViewMode.SLIDER,
       value: '0.7',
+      min: 0,
+      max: 2,
+      step: 0.1,
     },
     {
       name: OLLAMA_PARAMS.TIMEOUT,
@@ -87,19 +91,52 @@ async function seedGlobalNamespace(
     });
   }
 
+  await removeObsoleteParams(paramService, namespace, defaults);
+  namespace = (await namespaceService.findGlobalByName(name)) ?? namespace;
+
   for (const definition of defaults) {
     const existing = namespace.params?.find((param) => param.name === definition.name);
+    const viewMode = definition.viewMode ?? ParamViewMode.DEFAULT;
 
-    if (existing) continue;
+    if (existing) {
+      await paramService.update(existing.id, {
+        description: definition.description,
+        variant: definition.variant,
+        viewMode,
+        options: definition.options,
+        min: definition.min,
+        max: definition.max,
+        step: definition.step,
+      });
+      continue;
+    }
 
     await paramService.save({
       namespaceId: namespace.id,
       name: definition.name,
       description: definition.description,
       variant: definition.variant,
+      viewMode,
       value: definition.value,
       options: definition.options,
+      min: definition.min,
+      max: definition.max,
+      step: definition.step,
     });
+  }
+}
+
+async function removeObsoleteParams(
+  paramService: ConfigurationParamService,
+  namespace: ConfigurationNamespaceEntity,
+  defaults: SeedParamDefinition[],
+): Promise<void> {
+  const defaultNames = new Set(defaults.map((definition) => definition.name));
+
+  for (const param of namespace.params ?? []) {
+    if (!defaultNames.has(param.name)) {
+      await paramService.delete(param.id);
+    }
   }
 }
 

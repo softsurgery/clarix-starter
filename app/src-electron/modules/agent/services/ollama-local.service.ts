@@ -9,14 +9,11 @@ export class OllamaLocalService extends AbstractOllamaService {
     super(
       'local',
       config.baseUrl?.trim() || DEFAULT_LOCAL_BASE_URL,
-      config.model || 'llama3',
       config.temperature ?? 0.7,
       config.timeout ?? 60000,
     );
 
-    console.log(
-      `[OllamaLocalService] configured → ${this.baseUrl} (model: ${this.resolveModel()})`,
-    );
+    console.log(`[OllamaLocalService] configured → ${this.baseUrl}`);
   }
 
   async generate(prompt: string, options?: OllamaGenerateOptions): Promise<string> {
@@ -49,7 +46,11 @@ export class OllamaLocalService extends AbstractOllamaService {
   }
 
   protected resolveModel(model?: string): string {
-    return model ?? this.defaultModel;
+    if (!model) {
+      throw new Error('A model must be selected before generating with Ollama');
+    }
+
+    return model;
   }
 
   protected buildHeaders(): Record<string, string> {

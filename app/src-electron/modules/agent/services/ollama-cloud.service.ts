@@ -23,7 +23,6 @@ export class OllamaCloudService extends AbstractOllamaService {
     super(
       'cloud',
       CLOUD_BASE_URL,
-      config.model || 'llama3',
       config.temperature ?? 0.7,
       config.timeout ?? 60000,
     );
@@ -38,7 +37,7 @@ export class OllamaCloudService extends AbstractOllamaService {
     }
 
     console.log(
-      `[OllamaCloudService] configured → ${this.baseUrl} (model: ${this.resolveModel()}, apiKey=${this.apiKey ? 'set' : 'missing'})`,
+      `[OllamaCloudService] configured → ${this.baseUrl} (apiKey=${this.apiKey ? 'set' : 'missing'})`,
     );
   }
 
@@ -154,8 +153,11 @@ export class OllamaCloudService extends AbstractOllamaService {
    * (e.g. "gpt-oss:120b" instead of "gpt-oss:120b-cloud").
    */
   protected resolveModel(model?: string): string {
-    const name = model ?? this.defaultModel;
-    return name.replace(/-cloud$/, '');
+    if (!model) {
+      throw new Error('A model must be selected before generating with Ollama');
+    }
+
+    return model.replace(/-cloud$/, '');
   }
 
   protected buildHeaders(): Record<string, string> {

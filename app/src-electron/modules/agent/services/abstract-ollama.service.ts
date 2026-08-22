@@ -15,7 +15,6 @@ export abstract class AbstractOllamaService {
   constructor(
     protected readonly mode: OllamaModeValue,
     protected readonly baseUrl: string,
-    protected readonly defaultModel: string,
     protected readonly defaultTemperature: number,
     protected readonly timeoutMs: number,
   ) {}

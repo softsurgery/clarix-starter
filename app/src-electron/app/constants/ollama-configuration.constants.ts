@@ -5,7 +5,6 @@ export const OLLAMA_PARAMS = {
   MODE: 'mode',
   API_KEY: 'apiKey',
   BASE_URL: 'baseUrl',
-  MODEL: 'model',
   TEMPERATURE: 'temperature',
   TIMEOUT: 'timeout',
 } as const;
