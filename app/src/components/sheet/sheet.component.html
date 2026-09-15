@@ -1,4 +1,24 @@
-<hlm-sheet-content sheetContentBridge [showCloseButton]="true" [style.max-width]="context.width">
+<hlm-sheet-content
+  sheetContentBridge
+  class="sheet-panel"
+  [attr.data-side]="context.position ?? 'right'"
+  [showCloseButton]="false"
+  [style.width]="context.width"
+  [style.max-width]="context.width"
+>
+  <button
+    hlmBtn
+    variant="ghost"
+    size="icon-sm"
+    class="absolute top-4 z-10"
+    [class.start-4]="context.position === 'left'"
+    [class.end-4]="context.position !== 'left'"
+    hlmSheetClose
+    aria-label="Close"
+  >
+    <ng-icon hlm size="sm" name="lucideX" />
+  </button>
+
   <hlm-sheet-header>
     <h1 hlmSheetTitle class="text-xl font-bold">{{ context.title }}</h1>
     <p hlmSheetDescription>{{ context.description }}</p>

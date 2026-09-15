@@ -13,6 +13,7 @@ export class SheetService {
     return this.brnDialog.open(SheetComponent, viewContainerRef, config, {
       closeOnBackdropClick: config.dismissable ?? true,
       disableClose: config.closeOnEscape === false,
+      closeDelay: 200,
       panelClass: [`sheet-side-${side}`],
     });
   }
