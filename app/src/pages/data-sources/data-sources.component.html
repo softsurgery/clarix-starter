@@ -8,7 +8,7 @@
     <p class="text-sm text-muted-foreground max-w-sm mb-6">
       Get started by adding a database connection. Supports PostgreSQL, MySQL, MariaDB, and Oracle.
     </p>
-    <button hlmBtn (click)="navigateToCreate()">
+    <button hlmBtn (click)="openCreateSheet()">
       <ng-icon name="lucidePlus" class="mr-2" hlmIcon size="sm" />
       Add your first data source
     </button>
@@ -40,7 +40,7 @@
         <app-data-source-card
           [ds]="ds"
           [isTesting]="testingId() === ds.id"
-          (edit)="navigateToUpdate(ds.id)"
+          (edit)="openUpdateSheet(ds)"
           (delete)="confirmDelete(ds)"
           (test)="testConnection(ds)"
         />
@@ -49,7 +49,7 @@
       <!-- Add New Card Grid Item -->
       <button
         class="rounded-xl border-2 border-dashed bg-card/50 hover:bg-card hover:border-primary/30 flex flex-col items-center justify-center p-6 gap-3 text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer min-h-[220px]"
-        (click)="navigateToCreate()"
+        (click)="openCreateSheet()"
       >
         <div class="rounded-full bg-muted h-12 w-12 flex justify-center items-center">
           <ng-icon name="lucidePlus" hlmIcon class="size-8" />

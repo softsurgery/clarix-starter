@@ -33,6 +33,14 @@ export class SheetComponent implements AfterViewInit, OnDestroy {
 
   private readonly disabledSignals = new Map<SheetAction, Signal<boolean>>();
 
+  constructor() {
+    for (const action of this.actions) {
+      if (action.disabled) {
+        this.disabledSignals.set(action, toSignal(action.disabled, { initialValue: false }));
+      }
+    }
+  }
+
   ngAfterViewInit() {
     // Use setTimeout to ensure the overlay container is rendered
     setTimeout(() => {
@@ -45,13 +53,7 @@ export class SheetComponent implements AfterViewInit, OnDestroy {
   }
 
   protected isDisabled(action: SheetAction): boolean {
-    if (!action.disabled) return false;
-    let sig = this.disabledSignals.get(action);
-    if (!sig) {
-      sig = toSignal(action.disabled, { initialValue: false });
-      this.disabledSignals.set(action, sig);
-    }
-    return sig();
+    return this.disabledSignals.get(action)?.() ?? false;
   }
 
   close() {
